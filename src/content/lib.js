@@ -426,7 +426,7 @@
     const selText = currentSelectionText();
     const hasSel = !!selText;
     const actions = [
-      { icon: '📋', label: '打开 AI 侧边栏', sub: '在侧边栏打开 AI 网页端', act: () => { openSidePanelFromContent(); } },
+      { icon: '📋', label: '打开 AI 侧边栏', sub: '在侧边栏打开 AI 网页端', act: () => { openSidePanelFromContent(); hideLauncherMenu(); } },
       { icon: '💬', label: '引用选中文字', sub: hasSel ? '发到侧边栏' : '请先在页面选中文字', disabled: !hasSel, act: () => {
           sendQuote(selText);
           toast('已发送到侧边栏（同时已复制，可 Ctrl+V 粘贴）', 3000);
