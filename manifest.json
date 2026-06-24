@@ -2,7 +2,6 @@
   "manifest_version": 3,
   "name": "AI 侧边栏助手",
   "version": "0.2.0",
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm1eN+jqv74MTpK76yzNXTSf020a1N+fqwLY0Y1YgUMQB5dt9xdfKCeCnDNdIIHluk/4WOvBEeObr9a2+l6rf5WpWIBBjZ1u+o6Ux284yzFTp2xBOp9X3KbnpU1NHJTGf9UclQjTuA96ylaDfinCAyYtbfLrHTofLzic88ywCNqFeD0GjyINQwVrw2DEbbBX5kxsP8rJx16MIQe3mTKttHcJ/+y8Rurr5niY1OcndI0aZm45xYowT9Ti0cMfv6t7rM18CTP3tuiaB/jymktPqvO8gwRR+4QX/ohaWgYcjkpoR0cYEZaxuUOTxg2pIs5IJEjQEfJAbBEV+rmN0oEftdwIDAQAB",
   "description": "在浏览器侧边栏一键打开 ChatGPT/Claude/Gemini 等真实网页端；任意网页（含禁止复制站点）选中文字即可自动复制、引用并一键插入 AI 输入框。",
   "minimum_chrome_version": "114",
   "icons": {
