@@ -11,6 +11,7 @@
  */
 (function () {
   const AISA = window.AISA = window.AISA || {};
+  const t = (key) => window.AISA && window.AISA.i18n && window.AISA.i18n.t ? window.AISA.i18n.t(key) : key;
 
   // ==================== toast ====================
   let toastEl = null;
@@ -36,8 +37,8 @@
     floatBtn.id = 'aisa-float-bar';
     floatBtn.className = 'hidden';
     floatBtn.innerHTML =
-      '<button class="aisa-fb-btn" data-act="quote">📌 发到侧边栏</button>' +
-      '<button class="aisa-fb-btn alt" data-act="compose">➕ 加到组装</button>';
+      '<button class="aisa-fb-btn" data-act="quote">📌 ' + t('发到侧边栏') + '</button>' +
+      '<button class="aisa-fb-btn alt" data-act="compose">➕ ' + t('加到组装') + '</button>';
     floatBtn.addEventListener('mousedown', (e) => {
       // 阻止按钮点击导致选区丢失
       e.preventDefault();
@@ -51,10 +52,10 @@
         const act = b.getAttribute('data-act');
         if (act === 'quote') {
           sendQuote(text);
-          toast('已发送到侧边栏（同时已复制，可按 Ctrl+V 粘贴）', 3000);
+          toast(t('已发送到侧边栏（同时已复制，可按 Ctrl+V 粘贴）'), 3000);
         } else if (act === 'compose') {
           safeSendMessage({ type: 'AISA_ADD_TO_COMPOSER', text: text, source: document.title || '' });
-          toast('已加到提示词组装', 2000);
+          toast(t('已加到提示词组装'), 2000);
         }
         hideFloatBtn();
       });
@@ -142,17 +143,17 @@
     if (launcher) return launcher;
     launcher = document.createElement('div');
     launcher.id = 'aisa-launcher';
-    launcher.title = 'AI 侧边栏助手（点击打开，可拖动）';
+    launcher.title = t('AI 侧边栏助手（点击打开，可拖动）');
     launcher.innerHTML =
       '<span class="pulse"></span>' +
       '<img src="' + chrome.runtime.getURL('assets/icons/icon-32.png') + '" style="width:24px;height:24px;border-radius:6px;vertical-align:middle;box-shadow:0 2px 4px rgba(0,0,0,0.1);">' +
-      '<span class="close-x" title="在本页隐藏">×</span>';
+      '<span class="close-x" title="' + t('在本页隐藏') + '">×</span>';
     document.documentElement.appendChild(launcher);
 
     // 提示气泡（首次出现时显示几秒）
     launcherTip = document.createElement('div');
     launcherTip.id = 'aisa-launcher-tip';
-    launcherTip.textContent = '点我打开 AI 侧边栏 →';
+    launcherTip.textContent = t('点我打开 AI 侧边栏 →');
     document.documentElement.appendChild(launcherTip);
 
     bindLauncherEvents(launcher);
@@ -179,9 +180,15 @@
     }
   }
 
-  function showLauncher() {
+  async function showLauncher() {
     if (launcherHidden) return; // 用户在本页隐藏了
+    if (window.AISA && window.AISA.i18n) {
+      await window.AISA.i18n.init();
+    }
     ensureLauncher();
+    if (window.AISA && window.AISA.i18n) {
+      window.AISA.i18n.applyToDOM();
+    }
     launcher.classList.remove('hidden');
   }
   function hideLauncher() {
@@ -260,7 +267,7 @@
       e.stopPropagation();
       launcherHidden = true;
       hideLauncher();
-      toast('已在本页隐藏，刷新页面恢复', 2000);
+      toast(t('已在本页隐藏，刷新页面恢复'), 2000);
     });
   }
 
@@ -268,7 +275,7 @@
     // content script 无法直接开侧边栏，通知 background 处理。
     // background 端用 sender.tab.id 走 open({tabId}) 路径打开（与“发到侧边栏”同一机制）。
     safeSendMessage({ type: 'AISA_OPEN_PANEL_FROM_FLOAT' });
-    toast('正在打开 AI 侧边栏…', 1500);
+    toast(t('正在打开 AI 侧边栏…'), 1500);
   }
 
   // ==================== 悬浮球展开式面板（全功能控制台）====================
@@ -358,17 +365,28 @@
     const menu = ensureLauncherMenu();
     menu.innerHTML = '';
     const head = el('div', 'aisa-lm-head',
-      '<span class="aisa-lm-title">AI 侧边栏助手</span>' +
-      '<span class="aisa-lm-close" title="收起">×</span>'
+      '<span class="aisa-lm-title">' + t('AI 侧边栏助手') + '</span>' +
+      '<span class="aisa-lm-lang"><select id="aisa-lm-locale" style="margin:0 10px;padding:2px;font-size:12px;border:none;background:transparent;cursor:pointer;outline:none;"><option value="zh">ZH</option><option value="en">EN</option></select></span>' +
+      '<span class="aisa-lm-close" title="' + t('收起') + '">×</span>'
     );
     head.querySelector('.aisa-lm-close').addEventListener('click', (e) => { e.stopPropagation(); hideLauncherMenu(); });
+    const langSel = head.querySelector('#aisa-lm-locale');
+    if (langSel && window.AISA && window.AISA.i18n) {
+      langSel.value = window.AISA.i18n.locale;
+      langSel.addEventListener('change', async (e) => {
+        e.stopPropagation();
+        safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { locale: langSel.value } });
+        window.AISA.i18n.locale = langSel.value;
+        renderLauncherMenu();
+      });
+    }
     menu.appendChild(head);
     const tabs = el('div', 'aisa-lm-tabs');
     TAB_DEFS.forEach((td) => {
-      const t = el('div', 'aisa-lm-tab' + (activeTab === td.key ? ' active' : ''),
-        '<span class="aisa-lm-tabicon">' + td.icon + '</span><span class="aisa-lm-tablabel">' + td.label + '</span>');
-      t.addEventListener('click', (e) => { e.stopPropagation(); activeTab = td.key; renderTab(); });
-      tabs.appendChild(t);
+      const tElement = el('div', 'aisa-lm-tab' + (activeTab === td.key ? ' active' : ''),
+        '<span class="aisa-lm-tabicon">' + td.icon + '</span><span class="aisa-lm-tablabel">' + t(td.label) + '</span>');
+      tElement.addEventListener('click', (e) => { e.stopPropagation(); activeTab = td.key; renderTab(); });
+      tabs.appendChild(tElement);
     });
     menu.appendChild(tabs);
     const body = el('div', 'aisa-lm-body');
@@ -397,12 +415,12 @@
   async function addCurrentPageAsSite() {
     const storage = window.AISA && window.AISA.storage;
     if (!storage || !storage.getSites || !storage.saveSites) {
-      toast('存储不可用，添加失败', 2000);
+      toast(t('存储不可用，添加失败'), 2000);
       return;
     }
     const href = location.href;
     if (!/^https?:/i.test(href)) {
-      toast('当前页面不是网页，无法添加', 2000);
+      toast(t('当前页面不是网页，无法添加'), 2000);
       return;
     }
     let sites = (await storage.getSites()) || [];
@@ -412,13 +430,13 @@
     }
     // 去重：同 URL 已存在则提示
     if (sites.some((s) => s && s.url === href)) {
-      toast('该页面已在站点列表中', 2000);
+      toast(t('该页面已在站点列表中'), 2000);
       return;
     }
-    const name = (document.title || location.hostname || '新站点').slice(0, 20);
+    const name = (document.title || location.hostname || t('新站点')).slice(0, 20);
     sites = storage.addSite(sites, { id: 'custom_' + Date.now(), name: name, url: href, icon: '🔗' });
     await storage.saveSites(storage.sortSites(sites));
-    toast('已添加站点：' + name, 2000);
+    toast(t('已添加站点：') + name, 2000);
   }
 
   // ---------------- 操作 tab ----------------
@@ -426,31 +444,31 @@
     const selText = currentSelectionText();
     const hasSel = !!selText;
     const actions = [
-      { icon: '📋', label: '打开 AI 侧边栏', sub: '在侧边栏打开 AI 网页端', act: () => { openSidePanelFromContent(); hideLauncherMenu(); } },
-      { icon: '💬', label: '引用选中文字', sub: hasSel ? '发到侧边栏' : '请先在页面选中文字', disabled: !hasSel, act: () => {
+      { icon: '📋', label: t('打开 AI 侧边栏'), sub: t('在侧边栏打开 AI 网页端'), act: () => { openSidePanelFromContent(); hideLauncherMenu(); } },
+      { icon: '💬', label: t('引用选中文字'), sub: hasSel ? t('发到侧边栏') : t('请先在页面选中文字'), disabled: !hasSel, act: () => {
           sendQuote(selText);
-          toast('已发送到侧边栏（同时已复制，可 Ctrl+V 粘贴）', 3000);
+          toast(t('已发送到侧边栏（同时已复制，可 Ctrl+V 粘贴）'), 3000);
         } },
-      { icon: '🔗', label: '复制本页', sub: '标题 + URL', act: () => { safeSendMessage({ type: 'AISA_COPY_TAB' }); toast('已复制当前标签页', 1500); } },
-      { icon: '📑', label: '复制全部标签', sub: '当前窗口所有标签页', act: () => {
+      { icon: '🔗', label: t('复制本页'), sub: t('标题 + URL'), act: () => { safeSendMessage({ type: 'AISA_COPY_TAB' }); toast(t('已复制当前标签页'), 1500); } },
+      { icon: '📑', label: t('复制全部标签'), sub: t('当前窗口所有标签页'), act: () => {
           // 复制全部需要 tab 列表，走 background 查询+复制
           safeSendMessage({ type: 'AISA_QUERY_TABS' }).then((resp) => {
             if (resp && resp.ok && resp.tabs) {
               safeSendMessage({ type: 'AISA_COPY_ALL_TABS', tabs: resp.tabs });
-              toast('已复制全部标签页', 1500);
+              toast(t('已复制全部标签页'), 1500);
             } else {
-              toast('查询标签页失败', 1500);
+              toast(t('查询标签页失败'), 1500);
             }
           });
         } },
-      { icon: '➕', label: '添加当前页为 AI 站点', sub: '把本页加入侧边栏站点列表', act: async () => {
+      { icon: '➕', label: t('添加当前页为 AI 站点'), sub: t('把本页加入侧边栏站点列表'), act: async () => {
           await addCurrentPageAsSite();
         } }
     ];
     actions.forEach((it) => body.appendChild(buildActionRow(it)));
     body.appendChild(el('div', 'aisa-lm-sep'));
-    body.appendChild(buildActionRow({ icon: '🙈', label: '在本页隐藏悬浮图标', sub: '刷新页面恢复', muted: true, act: () => {
-      launcherHidden = true; hideLauncher(); toast('已在本页隐藏，刷新页面恢复', 2000);
+    body.appendChild(buildActionRow({ icon: '🙈', label: t('在本页隐藏悬浮图标'), sub: t('刷新页面恢复'), muted: true, act: () => {
+      launcherHidden = true; hideLauncher(); toast(t('已在本页隐藏，刷新页面恢复'), 2000);
     }}));
   }
 
@@ -471,22 +489,22 @@
     const settings = (typeof AISA.content.getSettings === 'function') ? (AISA.content.getSettings() || {}) : {};
     // 4 个开关
     const switches = [
-      { key: 'superCopy', icon: '🔓', label: '超级复制', sub: '破解禁止复制/右键/选择' },
-      { key: 'autoCopy', icon: '✂️', label: '自动复制', sub: '选中文字即复制' },
-      { key: 'showFloatBtn', icon: '🔘', label: '选中浮动按钮', sub: '选中后显示"发到侧边栏"' },
-      { key: 'showLauncher', icon: '🎈', label: '页面悬浮图标', sub: '每个网页显示悬浮球' }
+      { key: 'superCopy', icon: '🔓', label: t('超级复制'), sub: t('破解禁止复制/右键/选择') },
+      { key: 'autoCopy', icon: '✂️', label: t('自动复制'), sub: t('选中文字即复制') },
+      { key: 'showFloatBtn', icon: '🔘', label: t('选中浮动按钮'), sub: t('选中后显示"发到侧边栏"') },
+      { key: 'showLauncher', icon: '🎈', label: t('页面悬浮图标'), sub: t('每个网页显示悬浮球') }
     ];
     switches.forEach((s) => body.appendChild(buildSwitchRow(s, !!settings[s.key])));
     body.appendChild(el('div', 'aisa-lm-sep'));
     // 下拉/输入
-    body.appendChild(buildSelectRow('📑', '标签页复制格式', 'copyFormat', settings.copyFormat || 'title-url', [
-      ['title-url', '标题 - URL'], ['title', '仅标题'], ['url', '仅 URL'], ['markdown', 'Markdown'], ['bracket', '[标题] URL'], ['html', 'HTML'], ['csv', 'CSV'], ['json', 'JSON']
+    body.appendChild(buildSelectRow('📑', t('标签页复制格式'), 'copyFormat', settings.copyFormat || 'title-url', [
+      ['title-url', t('标题 - URL')], ['title', t('仅标题')], ['url', t('仅 URL')], ['markdown', 'Markdown'], ['bracket', t('[标题] URL')], ['html', 'HTML'], ['csv', 'CSV'], ['json', 'JSON']
     ]));
-    body.appendChild(buildSelectRow('📝', '自动复制格式', 'autoCopyFormat', settings.autoCopyFormat || 'plain', [
-      ['plain', '纯文本'], ['markdown', 'Markdown']
+    body.appendChild(buildSelectRow('📝', t('自动复制格式'), 'autoCopyFormat', settings.autoCopyFormat || 'plain', [
+      ['plain', t('纯文本')], ['markdown', 'Markdown']
     ]));
-    body.appendChild(buildNumberRow('🔢', '自动复制最小字符数', 'minChars', settings.minChars != null ? settings.minChars : 1, 1, 999));
-    body.appendChild(buildNumberRow('📚', '历史记录上限', 'historyLimit', settings.historyLimit != null ? settings.historyLimit : 100, 10, 5000, 10));
+    body.appendChild(buildNumberRow('🔢', t('自动复制最小字符数'), 'minChars', settings.minChars != null ? settings.minChars : 1, 1, 999));
+    body.appendChild(buildNumberRow('📚', t('历史记录上限'), 'historyLimit', settings.historyLimit != null ? settings.historyLimit : 100, 10, 5000, 10));
     body.appendChild(el('div', 'aisa-lm-sep'));
     // 当前站点超级复制三态
     body.appendChild(buildSiteOverrideRow(settings));
@@ -512,7 +530,7 @@
         AISA.content.updateSettingsCache({ [s.key]: cur });
       }
       safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { [s.key]: cur } });
-      toast(s.label + '已' + (cur ? '开启' : '关闭'), 1200);
+      toast(s.label + t('已') + (cur ? t('开启') : t('关闭')), 1200);
     });
     return row;
   }
@@ -529,7 +547,7 @@
         AISA.content.updateSettingsCache({ [key]: e.target.value });
       }
       safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { [key]: e.target.value } });
-      toast(label + '已更新', 1000);
+      toast(label + t('已更新'), 1000);
     });
     return row;
   }
@@ -551,7 +569,7 @@
         AISA.content.updateSettingsCache({ [key]: v });
       }
       safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { [key]: v } });
-      toast(label + '已更新', 1000);
+      toast(label + t('已更新'), 1000);
     });
     return row;
   }
@@ -563,22 +581,22 @@
     const ov = overrides[host];
     const curState = ov && typeof ov.superCopy === 'boolean' ? ov.superCopy : null;
     let label, badge, badgeClass;
-    if (curState === null) { label = '本站超级复制'; badge = '跟随全局'; badgeClass = 'neutral'; }
-    else if (curState === true) { label = '本站超级复制'; badge = '强制开'; badgeClass = 'on'; }
-    else { label = '本站超级复制'; badge = '强制关'; badgeClass = 'off'; }
+    if (curState === null) { label = t('本站超级复制'); badge = t('跟随全局'); badgeClass = 'neutral'; }
+    else if (curState === true) { label = t('本站超级复制'); badge = t('强制开'); badgeClass = 'on'; }
+    else { label = t('本站超级复制'); badge = t('强制关'); badgeClass = 'off'; }
     row.innerHTML =
       '<span class="aisa-lm-icon">🎯</span>' +
       '<span class="aisa-lm-text"><span class="aisa-lm-label">' + label + (host ? '（' + escapeHtml(host) + '）' : '') + '</span>' +
-      '<span class="aisa-lm-sub">点击循环：跟随全局 → 强制开 → 强制关</span></span>' +
+      '<span class="aisa-lm-sub">' + t('点击循环：跟随全局 → 强制开 → 强制关') + '</span></span>' +
       '<span class="aisa-lm-badge ' + badgeClass + '">' + badge + '</span>';
     row.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!host) { toast('当前页面无法识别站点', 1500); return; }
+      if (!host) { toast(t('当前页面无法识别站点'), 1500); return; }
       const next = Object.assign({}, overrides);
       let nextLabel;
-      if (curState === null) { next[host] = { superCopy: true }; nextLabel = '本站已强制开启超级复制'; }
-      else if (curState === true) { next[host] = { superCopy: false }; nextLabel = '本站已强制关闭超级复制'; }
-      else { delete next[host]; nextLabel = '本站已恢复跟随全局'; }
+      if (curState === null) { next[host] = { superCopy: true }; nextLabel = t('本站已强制开启超级复制'); }
+      else if (curState === true) { next[host] = { superCopy: false }; nextLabel = t('本站已强制关闭超级复制'); }
+      else { delete next[host]; nextLabel = t('本站已恢复跟随全局'); }
       safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { siteOverrides: next } });
       toast(nextLabel, 1500);
     });
@@ -589,18 +607,18 @@
   function renderHistoryTab(body) {
     // 搜索框 + 清空按钮
     const toolbar = el('div', 'aisa-lm-toolbar');
-    toolbar.innerHTML = '<input type="search" class="aisa-lm-search" placeholder="搜索历史…" value="' + escapeHtml(historyFilter) + '"><button class="aisa-lm-btn danger sm" title="清空全部">清空</button>';
+    toolbar.innerHTML = '<input type="search" class="aisa-lm-search" placeholder="' + t('搜索历史…') + '" value="' + escapeHtml(historyFilter) + '"><button class="aisa-lm-btn danger sm" title="' + t('清空全部') + '">' + t('清空') + '</button>';
     toolbar.querySelector('input').addEventListener('input', (e) => { e.stopPropagation(); historyFilter = e.target.value; renderHistoryList(); });
     toolbar.querySelector('button').addEventListener('click', (e) => {
       e.stopPropagation();
-      if (!confirm('确定清空全部历史记录？此操作不可撤销。')) return;
+      if (!confirm(t('确定清空全部历史记录？此操作不可撤销。'))) return;
       const storage = window.AISA && window.AISA.storage;
-      if (storage && storage.clearHistory) { storage.clearHistory(); toast('已清空历史记录', 1500); }
+      if (storage && storage.clearHistory) { storage.clearHistory(); toast(t('已清空历史记录'), 1500); }
     });
     body.appendChild(toolbar);
     const listWrap = el('div', 'aisa-lm-list');
     listWrap.id = 'aisa-lm-history-list';
-    listWrap.appendChild(el('div', 'aisa-lm-loading', '加载中…'));
+    listWrap.appendChild(el('div', 'aisa-lm-loading', t('加载中…')));
     body.appendChild(listWrap);
     renderHistoryList();
   }
@@ -611,7 +629,7 @@
     listWrap.innerHTML = '';
     const storage = window.AISA && window.AISA.storage;
     if (!storage || typeof storage.getHistory !== 'function') {
-      listWrap.appendChild(el('div', 'aisa-lm-empty', '暂无历史记录'));
+      listWrap.appendChild(el('div', 'aisa-lm-empty', t('暂无历史记录')));
       return;
     }
     storage.getHistory().then((items) => {
@@ -621,41 +639,41 @@
       const q = (historyFilter || '').toLowerCase();
       const list = q ? all.filter((it) => ((it.text || '') + ' ' + (it.source || '')).toLowerCase().includes(q)) : all;
       const shown = list.slice(0, 50);
-      if (shown.length === 0) { listWrap.appendChild(el('div', 'aisa-lm-empty', q ? '没有匹配的记录' : '暂无历史记录')); return; }
+      if (shown.length === 0) { listWrap.appendChild(el('div', 'aisa-lm-empty', q ? t('没有匹配的记录') : t('暂无历史记录'))); return; }
       shown.forEach((it) => {
         const row = el('div', 'aisa-lm-hitem');
         const preview = (it.text || '').replace(/\s+/g, ' ').slice(0, 120);
         const src = it.source || it.url || '';
-        const t = it.time ? new Date(it.time) : null;
-        const tstr = t ? (t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0') + ' ' + String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0')) : '';
+        const tObj = it.time ? new Date(it.time) : null;
+        const tstr = tObj ? (tObj.getFullYear() + '-' + String(tObj.getMonth() + 1).padStart(2, '0') + '-' + String(tObj.getDate()).padStart(2, '0') + ' ' + String(tObj.getHours()).padStart(2, '0') + ':' + String(tObj.getMinutes()).padStart(2, '0')) : '';
         row.innerHTML =
           '<div class="aisa-lm-hpre">' + escapeHtml(preview) + '</div>' +
           '<div class="aisa-lm-hmeta">' + (src ? '<span class="src">' + escapeHtml(src) + '</span> · ' : '') + '<span class="time">' + tstr + '</span></div>' +
-          '<div class="aisa-lm-hact"><button class="aisa-lm-btn sm" title="复制">📋</button><button class="aisa-lm-btn sm danger" title="删除">🗑️</button></div>';
+          '<div class="aisa-lm-hact"><button class="aisa-lm-btn sm" title="' + t('复制') + '">📋</button><button class="aisa-lm-btn sm danger" title="' + t('删除') + '">🗑️</button></div>';
         row.querySelector('.aisa-lm-hact button:nth-child(1)').addEventListener('click', (e) => {
           e.stopPropagation();
           const clip = window.AISA && window.AISA.clipboard;
-          if (clip && clip.copyText) clip.copyText(it.text || '').then(() => toast('已复制到剪贴板', 1500));
+          if (clip && clip.copyText) clip.copyText(it.text || '').then(() => toast(t('已复制到剪贴板'), 1500));
         });
         row.querySelector('.aisa-lm-hact button:nth-child(2)').addEventListener('click', (e) => {
           e.stopPropagation();
-          if (storage.removeHistoryItem) { storage.removeHistoryItem(it.id); toast('已删除', 1200); }
+          if (storage.removeHistoryItem) { storage.removeHistoryItem(it.id); toast(t('已删除'), 1200); }
         });
         row.addEventListener('click', (e) => { // 点空白处也复制
           if (e.target.closest('button')) return;
           e.stopPropagation();
           const clip = window.AISA && window.AISA.clipboard;
-          if (clip && clip.copyText) clip.copyText(it.text || '').then(() => toast('已复制到剪贴板', 1500));
+          if (clip && clip.copyText) clip.copyText(it.text || '').then(() => toast(t('已复制到剪贴板'), 1500));
         });
         listWrap.appendChild(row);
       });
-      if (list.length > 50) listWrap.appendChild(el('div', 'aisa-lm-hint', '仅显示前 50 条，更多请打开历史页'));
-    }).catch(() => { listWrap.innerHTML = ''; listWrap.appendChild(el('div', 'aisa-lm-empty', '读取历史失败')); });
+      if (list.length > 50) listWrap.appendChild(el('div', 'aisa-lm-hint', t('仅显示前 50 条，更多请打开历史页')));
+    }).catch(() => { listWrap.innerHTML = ''; listWrap.appendChild(el('div', 'aisa-lm-empty', t('读取历史失败'))); });
   }
 
   // ---------------- 站点 tab（AI 站点 CRUD）----------------
   async function renderSitesTab(body) {
-    body.appendChild(el('div', 'aisa-lm-loading', '加载中…'));
+    body.appendChild(el('div', 'aisa-lm-loading', t('加载中…')));
     const storage = window.AISA && window.AISA.storage;
     let sites = [];
     if (storage && storage.getSites) sites = await storage.getSites();
@@ -672,7 +690,7 @@
     // 列表（渲染前统一排序：置顶区在前）
     const listWrap = el('div', 'aisa-lm-list');
     if (!sites || sites.length === 0) {
-      listWrap.appendChild(el('div', 'aisa-lm-empty', '暂无站点'));
+      listWrap.appendChild(el('div', 'aisa-lm-empty', t('暂无站点')));
     } else {
       const sorted = storage && storage.sortSites ? storage.sortSites(sites) : sites;
       const firstOther = sorted.findIndex((s) => !s.pinned); // 第一个非置顶（区域边界）
@@ -682,18 +700,18 @@
         row.draggable = true; // 纵向拖拽（置顶区/非置顶区各自内部可拖，跨区被拒绝）
         const iconHtml = siteIconHtml(s.icon, s.name);
         const pinBtn = s.pinned
-          ? '<button class="aisa-lm-btn sm active" data-act="pin" title="取消置顶">📌</button>'
-          : '<button class="aisa-lm-btn sm" data-act="pin" title="置顶">📍</button>';
+          ? '<button class="aisa-lm-btn sm active" data-act="pin" title="' + t('取消置顶') + '">📌</button>'
+          : '<button class="aisa-lm-btn sm" data-act="pin" title="' + t('置顶') + '">📍</button>';
         row.innerHTML =
-          '<span class="aisa-lm-drag" title="拖拽排序">⠿</span>' +
+          '<span class="aisa-lm-drag" title="' + t('拖拽排序') + '">⠿</span>' +
           iconHtml +
           '<div class="aisa-lm-ctext"><div class="aisa-lm-clabel">' + escapeHtml(s.name) + '</div><div class="aisa-lm-curl">' + escapeHtml(s.url) + '</div></div>' +
           '<div class="aisa-lm-cact">' +
             pinBtn +
-            '<button class="aisa-lm-btn sm" data-act="up" title="上移">▲</button>' +
-            '<button class="aisa-lm-btn sm" data-act="down" title="下移">▼</button>' +
-            '<button class="aisa-lm-btn sm" data-act="edit" title="编辑">✎</button>' +
-            '<button class="aisa-lm-btn sm danger" data-act="del" title="删除">✕</button>' +
+            '<button class="aisa-lm-btn sm" data-act="up" title="' + t('上移') + '">▲</button>' +
+            '<button class="aisa-lm-btn sm" data-act="down" title="' + t('下移') + '">▼</button>' +
+            '<button class="aisa-lm-btn sm" data-act="edit" title="' + t('编辑') + '">✎</button>' +
+            '<button class="aisa-lm-btn sm danger" data-act="del" title="' + t('删除') + '">✕</button>' +
           '</div>';
         // 区域边界：▲▼ 在区域内首位/末位禁用
         const isPinned = !!s.pinned;
@@ -710,36 +728,36 @@
         row.querySelector('[data-act="edit"]').addEventListener('click', (e) => { e.stopPropagation(); siteEditId = s.id; renderTab(); });
         row.querySelector('[data-act="del"]').addEventListener('click', (e) => {
           e.stopPropagation();
-          if (!confirm('删除站点「' + s.name + '」？')) return;
+          if (!confirm(t('删除站点「') + s.name + t('」？'))) return;
           const next = sites.filter((x) => x.id !== s.id);
-          if (storage && storage.saveSites) { storage.saveSites(next); toast('已删除', 1200); }
+          if (storage && storage.saveSites) { storage.saveSites(next); toast(t('已删除'), 1200); }
         });
         bindSiteRowDrag(row, sorted, listWrap, storage);
         listWrap.appendChild(row);
       });
     }
     body.appendChild(listWrap);
-    body.appendChild(el('div', 'aisa-lm-hint', '站点列表同步到侧边栏'));
+    body.appendChild(el('div', 'aisa-lm-hint', t('站点列表同步到侧边栏')));
   }
 
   function buildSiteForm(editing) {
     const wrap = el('div', 'aisa-lm-form');
     wrap.innerHTML =
-      '<div class="aisa-lm-formtitle">' + (editing ? '编辑站点' : '添加站点') + '</div>' +
-      '<input class="aisa-lm-input block" id="aisa-site-name" placeholder="名称（如 ChatGPT）" value="' + escapeHtml(editing ? editing.name : '') + '">' +
-      '<input class="aisa-lm-input block" id="aisa-site-url" placeholder="网址 https://…" value="' + escapeHtml(editing ? editing.url : '') + '">' +
-      '<input class="aisa-lm-input block" id="aisa-site-icon" placeholder="图标 emoji（可空，如 🤖）" maxlength="4" value="' + escapeHtml(editing && editing.icon && !/^https?:|^assets\//.test(editing.icon) ? editing.icon : '') + '">' +
-      '<label class="aisa-lm-check"><input type="checkbox" id="aisa-site-pin" ' + (editing && editing.pinned ? 'checked' : '') + '><span>置顶到首位</span></label>' +
-      '<div class="aisa-lm-formbtns"><button class="aisa-lm-btn primary sm" id="aisa-site-save">' + (editing ? '保存' : '添加') + '</button>' + (editing ? '<button class="aisa-lm-btn sm" id="aisa-site-cancel">取消</button>' : '') + '</div>';
+      '<div class="aisa-lm-formtitle">' + (editing ? t('编辑站点') : t('添加站点')) + '</div>' +
+      '<input class="aisa-lm-input block" id="aisa-site-name" placeholder="' + t('名称（如 ChatGPT）') + '" value="' + escapeHtml(editing ? editing.name : '') + '">' +
+      '<input class="aisa-lm-input block" id="aisa-site-url" placeholder="' + t('网址 https://…') + '" value="' + escapeHtml(editing ? editing.url : '') + '">' +
+      '<input class="aisa-lm-input block" id="aisa-site-icon" placeholder="' + t('图标 emoji（可空，如 🤖）') + '" maxlength="4" value="' + escapeHtml(editing && editing.icon && !/^https?:|^assets\//.test(editing.icon) ? editing.icon : '') + '">' +
+      '<label class="aisa-lm-check"><input type="checkbox" id="aisa-site-pin" ' + (editing && editing.pinned ? 'checked' : '') + '><span>' + t('置顶到首位') + '</span></label>' +
+      '<div class="aisa-lm-formbtns"><button class="aisa-lm-btn primary sm" id="aisa-site-save">' + (editing ? t('保存') : t('添加')) + '</button>' + (editing ? '<button class="aisa-lm-btn sm" id="aisa-site-cancel">' + t('取消') + '</button>' : '') + '</div>';
     wrap.querySelector('#aisa-site-save').addEventListener('click', async (e) => {
       e.stopPropagation();
       const name = wrap.querySelector('#aisa-site-name').value.trim();
       const url = wrap.querySelector('#aisa-site-url').value.trim();
       const icon = wrap.querySelector('#aisa-site-icon').value.trim();
       const pinned = wrap.querySelector('#aisa-site-pin').checked;
-      if (!name || !url) { toast('请填写名称和网址', 1500); return; }
+      if (!name || !url) { toast(t('请填写名称和网址'), 1500); return; }
       const storage = window.AISA && window.AISA.storage;
-      if (!storage || !storage.getSites || !storage.saveSites) { toast('保存失败', 1500); return; }
+      if (!storage || !storage.getSites || !storage.saveSites) { toast(t('保存失败'), 1500); return; }
       let sites = (await storage.getSites()) || [];
       if (!sites.length) { const r = await safeSendMessage({ type: 'AISA_GET_DEFAULT_SITES' }); sites = (r && r.sites) || []; }
       const wasEdit = siteEditId !== null;
@@ -765,7 +783,7 @@
       }
       await storage.saveSites(storage.sortSites(sites));
       siteEditId = null;
-      toast(wasEdit ? '已保存' : '已添加', 1200);
+      toast(wasEdit ? t('已保存') : t('已添加'), 1200);
       renderTab();
     });
     if (editing) {
@@ -838,7 +856,7 @@
 
   // ---------------- 提示词 tab（CRUD）----------------
   async function renderPromptsTab(body) {
-    body.appendChild(el('div', 'aisa-lm-loading', '加载中…'));
+    body.appendChild(el('div', 'aisa-lm-loading', t('加载中…')));
     const storage = window.AISA && window.AISA.storage;
     let prompts = (storage && storage.getPrompts) ? (await storage.getPrompts()) : [];
     if (!Array.isArray(prompts)) prompts = [];
@@ -849,54 +867,54 @@
     body.appendChild(el('div', 'aisa-lm-sep'));
     const listWrap = el('div', 'aisa-lm-list');
     if (prompts.length === 0) {
-      listWrap.appendChild(el('div', 'aisa-lm-empty', '暂无提示词模板'));
+      listWrap.appendChild(el('div', 'aisa-lm-empty', t('暂无提示词模板')));
     } else {
       prompts.forEach((p, idx) => {
         const row = el('div', 'aisa-lm-cruitem');
         const preview = (p.content || '').replace(/\s+/g, ' ').slice(0, 40);
         row.innerHTML =
           '<span class="aisa-lm-cicon mono">/' + escapeHtml(p.trigger) + '</span>' +
-          '<div class="aisa-lm-ctext"><div class="aisa-lm-clabel">' + escapeHtml(preview || '(空)') + '</div></div>' +
+          '<div class="aisa-lm-ctext"><div class="aisa-lm-clabel">' + escapeHtml(preview || t('(空)')) + '</div></div>' +
           '<div class="aisa-lm-cact">' +
-            '<button class="aisa-lm-btn sm" data-act="up" title="上移">▲</button>' +
-            '<button class="aisa-lm-btn sm" data-act="down" title="下移">▼</button>' +
-            '<button class="aisa-lm-btn sm" data-act="edit" title="编辑">✎</button>' +
-            '<button class="aisa-lm-btn sm danger" data-act="del" title="删除">✕</button>' +
+            '<button class="aisa-lm-btn sm" data-act="up" title="' + t('上移') + '">▲</button>' +
+            '<button class="aisa-lm-btn sm" data-act="down" title="' + t('下移') + '">▼</button>' +
+            '<button class="aisa-lm-btn sm" data-act="edit" title="' + t('编辑') + '">✎</button>' +
+            '<button class="aisa-lm-btn sm danger" data-act="del" title="' + t('删除') + '">✕</button>' +
           '</div>';
         row.querySelector('[data-act="up"]').addEventListener('click', (e) => { e.stopPropagation(); movePrompt(prompts, idx, -1); });
         row.querySelector('[data-act="down"]').addEventListener('click', (e) => { e.stopPropagation(); movePrompt(prompts, idx, 1); });
         row.querySelector('[data-act="edit"]').addEventListener('click', (e) => { e.stopPropagation(); promptEditIdx = idx; renderTab(); });
         row.querySelector('[data-act="del"]').addEventListener('click', (e) => {
           e.stopPropagation();
-          if (!confirm('删除提示词 /' + p.trigger + ' ？')) return;
+          if (!confirm(t('删除提示词 /') + p.trigger + t(' ？'))) return;
           const next = prompts.filter((_, i) => i !== idx);
-          if (storage && storage.savePrompts) { storage.savePrompts(next); toast('已删除', 1200); }
+          if (storage && storage.savePrompts) { storage.savePrompts(next); toast(t('已删除'), 1200); }
         });
         listWrap.appendChild(row);
       });
     }
     body.appendChild(listWrap);
-    body.appendChild(el('div', 'aisa-lm-hint', '在侧边栏输入框打 /触发词 展开模板'));
+    body.appendChild(el('div', 'aisa-lm-hint', t('在侧边栏输入框打 /触发词 展开模板')));
   }
 
   function buildPromptForm(editing) {
     const wrap = el('div', 'aisa-lm-form');
     wrap.innerHTML =
-      '<div class="aisa-lm-formtitle">' + (editing ? '编辑提示词' : '添加提示词') + '</div>' +
-      '<input class="aisa-lm-input block" id="aisa-prompt-trigger" placeholder="触发词（如 fy）" value="' + escapeHtml(editing ? editing.trigger : '') + '">' +
-      '<textarea class="aisa-lm-textarea" id="aisa-prompt-content" placeholder="展开内容（如：请翻译以下内容：）">' + escapeHtml(editing ? editing.content : '') + '</textarea>' +
-      '<div class="aisa-lm-formbtns"><button class="aisa-lm-btn primary sm" id="aisa-prompt-save">' + (editing ? '保存' : '添加') + '</button>' + (editing ? '<button class="aisa-lm-btn sm" id="aisa-prompt-cancel">取消</button>' : '') + '</div>';
+      '<div class="aisa-lm-formtitle">' + (editing ? t('编辑提示词') : t('添加提示词')) + '</div>' +
+      '<input class="aisa-lm-input block" id="aisa-prompt-trigger" placeholder="' + t('触发词（如 fy）') + '" value="' + escapeHtml(editing ? editing.trigger : '') + '">' +
+      '<textarea class="aisa-lm-textarea" id="aisa-prompt-content" placeholder="' + t('展开内容（如：请翻译以下内容：）') + '">' + escapeHtml(editing ? editing.content : '') + '</textarea>' +
+      '<div class="aisa-lm-formbtns"><button class="aisa-lm-btn primary sm" id="aisa-prompt-save">' + (editing ? t('保存') : t('添加')) + '</button>' + (editing ? '<button class="aisa-lm-btn sm" id="aisa-prompt-cancel">' + t('取消') + '</button>' : '') + '</div>';
     wrap.querySelector('#aisa-prompt-save').addEventListener('click', async (e) => {
       e.stopPropagation();
       const trigger = wrap.querySelector('#aisa-prompt-trigger').value.trim();
       const content = wrap.querySelector('#aisa-prompt-content').value;
-      if (!trigger || !content) { toast('请填写触发词和内容', 1500); return; }
+      if (!trigger || !content) { toast(t('请填写触发词和内容'), 1500); return; }
       const storage = window.AISA && window.AISA.storage;
-      if (!storage || !storage.getPrompts || !storage.savePrompts) { toast('保存失败', 1500); return; }
+      if (!storage || !storage.getPrompts || !storage.savePrompts) { toast(t('保存失败'), 1500); return; }
       let prompts = (await storage.getPrompts()) || [];
       // 触发词唯一性（新增时校验，编辑时排除自身）
       const dup = prompts.findIndex((p, i) => p.trigger === trigger && i !== promptEditIdx);
-      if (dup >= 0) { toast('触发词 /' + trigger + ' 已存在', 1500); return; }
+      if (dup >= 0) { toast(t('触发词 /') + trigger + t(' 已存在'), 1500); return; }
       if (promptEditIdx !== null) {
         prompts = prompts.map((p, i) => i === promptEditIdx ? { trigger: trigger, content: content } : p);
       } else {
@@ -904,7 +922,7 @@
       }
       await storage.savePrompts(prompts);
       promptEditIdx = null;
-      toast('已保存', 1200);
+      toast(t('已保存'), 1200);
       renderTab();
     });
     if (editing) {
@@ -1026,7 +1044,7 @@
       document.documentElement.appendChild(injectedStyle);
     }
 
-    toast('已开启超级复制', 1500);
+    toast(t('已开启超级复制'), 1500);
   }
 
   function disableSuperCopy() {
@@ -1056,7 +1074,7 @@
       try { await window.AISA.storage.addHistoryItem(text, document.title || ''); } catch (e) {}
     }
     if (ok) {
-      toast('已复制选中内容' + (settings.autoCopyFormat === 'markdown' ? '（Markdown）' : ''), 1200);
+      toast(t('已复制选中内容') + (settings.autoCopyFormat === 'markdown' ? t('（Markdown）') : ''), 1200);
     }
   }
 

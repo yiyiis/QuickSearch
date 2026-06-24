@@ -37,6 +37,18 @@ let currentSettings = null;
 let currentHost = '';
 
 async function init() {
+  await AISA.i18n.init();
+  AISA.i18n.applyToDOM();
+
+  const langSelect = document.getElementById('popup-locale');
+  if (langSelect) {
+    langSelect.value = AISA.i18n.locale;
+    langSelect.addEventListener('change', async () => {
+      await saveSettings({ locale: langSelect.value });
+      location.reload();
+    });
+  }
+
   currentSettings = await getSettings();
   if (!currentSettings) return;
 
@@ -49,7 +61,7 @@ async function init() {
   // 当前站点
   const tab = await getCurrentTab();
   currentHost = hostOf(tab && tab.url);
-  document.getElementById('cur-host').textContent = currentHost || '（非网页）';
+  document.getElementById('cur-host').textContent = currentHost || AISA.i18n.t('（非网页）');
   updateSiteStatus();
 }
 
@@ -63,16 +75,16 @@ function updateSiteStatus() {
   const overrides = (currentSettings && currentSettings.siteOverrides) || {};
   const ov = overrides[currentHost];
   if (ov && typeof ov.superCopy === 'boolean') {
-    el.textContent = '本站超级复制：' + (ov.superCopy ? '已开启（覆盖全局）' : '已关闭（覆盖全局）');
+    el.textContent = ov.superCopy ? AISA.i18n.t('已强制本站开启') : AISA.i18n.t('已强制本站关闭');
   } else {
-    el.textContent = '本站跟随全局设置';
+    el.textContent = AISA.i18n.t('本站跟随全局设置');
   }
 }
 
 // ---------- 开关事件 ----------
 document.getElementById('set-supercopy').addEventListener('change', async (e) => {
   currentSettings = await saveSettings({ superCopy: e.target.checked });
-  notify('AI 侧边栏助手', '超级复制已' + (e.target.checked ? '开启' : '关闭'));
+  notify(AISA.i18n.t('AI 侧边栏助手'), e.target.checked ? AISA.i18n.t('已开启超级复制') : AISA.i18n.t('超级复制已关闭'));
 });
 document.getElementById('set-autocopy').addEventListener('change', async (e) => {
   currentSettings = await saveSettings({ autoCopy: e.target.checked });
@@ -95,19 +107,19 @@ document.getElementById('btn-toggle-site').addEventListener('click', async () =>
   if (curState === null) {
     // 跟随全局 → 强制开
     overrides[currentHost] = Object.assign({}, cur || {}, { superCopy: true });
-    nextLabel = '已强制本站开启';
+    nextLabel = AISA.i18n.t('本站已强制开启超级复制');
   } else if (curState === true) {
     // 强制开 → 强制关
     overrides[currentHost] = Object.assign({}, cur || {}, { superCopy: false });
-    nextLabel = '已强制本站关闭';
+    nextLabel = AISA.i18n.t('本站已强制关闭超级复制');
   } else {
     // 强制关 → 跟随全局（删除该键）
     delete overrides[currentHost];
-    nextLabel = '已恢复跟随全局';
+    nextLabel = AISA.i18n.t('本站已恢复跟随全局');
   }
   currentSettings = await saveSettings({ siteOverrides: overrides });
   updateSiteStatus();
-  notify('AI 侧边栏助手', nextLabel);
+  notify(AISA.i18n.t('AI 侧边栏助手'), nextLabel);
 });
 
 // ---------- 快捷操作 ----------

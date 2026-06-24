@@ -3,21 +3,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>剪贴板历史 · AI 侧边栏助手</title>
+  <title data-i18n="剪贴板历史 · AI 侧边栏助手">剪贴板历史 · AI 侧边栏助手</title>
   <link rel="stylesheet" href="history.css" />
 </head>
 <body>
   <header>
-    <h1>📋 剪贴板历史记录</h1>
+    <h1 data-i18n="📋 剪贴板历史记录">📋 剪贴板历史记录</h1>
     <div class="actions">
-      <input type="search" id="search" placeholder="搜索历史内容…" />
-      <button id="btn-clear" class="danger">清空全部</button>
+      <input type="search" id="search" data-i18n-placeholder="搜索历史内容…" placeholder="搜索历史内容…" />
+      <button id="btn-clear" class="danger" data-i18n="清空全部">清空全部</button>
     </div>
   </header>
   <div id="list" class="list"></div>
-  <div id="empty" class="empty hidden">暂无历史记录。在任意网页选中文字或复制内容后会自动记录。</div>
+  <div id="empty" class="empty hidden" data-i18n="暂无历史记录。在任意网页选中文字或复制内容后会自动记录。">暂无历史记录。在任意网页选中文字或复制内容后会自动记录。</div>
   <div id="toast" class="toast hidden"></div>
 
+  <script src="../../lib/i18n.js"></script>
   <script src="../../lib/storage.js"></script>
   <script src="../../lib/clipboard.js"></script>
   <script src="history.js"></script>

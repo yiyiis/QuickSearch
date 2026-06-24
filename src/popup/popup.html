@@ -3,21 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 侧边栏助手</title>
+  <title data-i18n="AI 侧边栏助手">AI 侧边栏助手</title>
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
   <div class="header">
     <img src="../../assets/icons/icon-32.png" alt="logo" style="width: 24px; height: 24px; vertical-align: middle; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-right: 6px;">
-    <span class="logo">AI 侧边栏助手</span>
-    <button id="btn-open-panel" class="primary" title="打开侧边栏">打开侧边栏</button>
+    <span class="logo" data-i18n="AI 侧边栏助手">AI 侧边栏助手</span>
+    <select id="popup-locale" style="margin-left: auto; margin-right: 8px; padding: 2px 4px; font-size: 12px; border-radius: 4px; outline: none; border: 1px solid #cbd5e1; background: #fff; cursor: pointer;">
+      <option value="zh">ZH</option>
+      <option value="en">EN</option>
+    </select>
+    <button id="btn-open-panel" class="primary" title="打开侧边栏" data-i18n-title="打开侧边栏" data-i18n="打开侧边栏">打开侧边栏</button>
   </div>
 
   <div class="section">
     <label class="row toggle-row">
       <span>
-        <span class="title">超级复制</span>
-        <span class="desc">破解禁止复制/右键/选择</span>
+        <span class="title" data-i18n="超级复制">超级复制</span>
+        <span class="desc" data-i18n="破解禁止复制/右键/选择">破解禁止复制/右键/选择</span>
       </span>
       <input type="checkbox" id="set-supercopy" />
       <span class="switch"></span>
@@ -25,8 +29,8 @@
 
     <label class="row toggle-row">
       <span>
-        <span class="title">自动复制选中</span>
-        <span class="desc">选中文字即复制到剪贴板</span>
+        <span class="title" data-i18n="自动复制选中">自动复制选中</span>
+        <span class="desc" data-i18n="选中文字即复制到剪贴板">选中文字即复制到剪贴板</span>
       </span>
       <input type="checkbox" id="set-autocopy" />
       <span class="switch"></span>
@@ -34,8 +38,8 @@
 
     <label class="row toggle-row">
       <span>
-        <span class="title">显示浮动按钮</span>
-        <span class="desc">选中后显示"发到侧边栏"</span>
+        <span class="title" data-i18n="显示浮动按钮">显示浮动按钮</span>
+        <span class="desc" data-i18n="选中后显示&quot;发到侧边栏&quot;">选中后显示"发到侧边栏"</span>
       </span>
       <input type="checkbox" id="set-floatbtn" />
       <span class="switch"></span>
@@ -43,8 +47,8 @@
 
     <label class="row toggle-row">
       <span>
-        <span class="title">页面悬浮入口</span>
-        <span class="desc">每个网页显示可打开侧边栏的悬浮图标</span>
+        <span class="title" data-i18n="页面悬浮入口">页面悬浮入口</span>
+        <span class="desc" data-i18n="每个网页显示可打开侧边栏的悬浮图标">每个网页显示可打开侧边栏的悬浮图标</span>
       </span>
       <input type="checkbox" id="set-launcher" />
       <span class="switch"></span>
@@ -53,21 +57,23 @@
 
   <div class="section" id="site-section">
     <div class="section-title">
-      当前站点：<span id="cur-host" class="host">—</span>
-      <button id="btn-toggle-site" class="link" title="为该站点单独开关超级复制">站点独立设置</button>
+      <span data-i18n="当前站点：">当前站点：</span><span id="cur-host" class="host">—</span>
+      <button id="btn-toggle-site" class="link" title="为该站点单独开关超级复制" data-i18n-title="为该站点单独开关超级复制" data-i18n="站点独立设置">站点独立设置</button>
     </div>
     <div id="site-status" class="site-status"></div>
   </div>
 
   <div class="section quick">
-    <button id="btn-copy-tab" class="ghost">📋 复制当前标签</button>
-    <button id="btn-copy-all" class="ghost">📑 复制全部标签</button>
-    <button id="btn-history" class="ghost">🗂 剪贴板历史</button>
-    <button id="btn-options" class="ghost">⚙ 高级设置</button>
+    <button id="btn-copy-tab" class="ghost">📋 <span data-i18n="复制当前标签">复制当前标签</span></button>
+    <button id="btn-copy-all" class="ghost">📑 <span data-i18n="复制全部标签">复制全部标签</span></button>
+    <button id="btn-history" class="ghost">🗂 <span data-i18n="剪贴板历史">剪贴板历史</span></button>
+    <button id="btn-options" class="ghost">⚙ <span data-i18n="高级设置">高级设置</span></button>
   </div>
 
-  <div class="footer">Alt+Q 开侧栏 · Alt+1/3/4 · 数据仅本地存储</div>
+  <div class="footer" data-i18n="Alt+Q 开侧栏 · Alt+1/3/4 · 数据仅本地存储">Alt+Q 开侧栏 · Alt+1/3/4 · 数据仅本地存储</div>
 
+  <script src="../../lib/i18n.js"></script>
+  <script src="../../lib/storage.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

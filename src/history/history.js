@@ -1,7 +1,10 @@
 /* src/history/history.js
  * 剪贴板历史记录页：列表 / 搜索 / 单条复制 / 删除 / 清空。
  */
-(function () {
+(async function initHistory() {
+  await AISA.i18n.init();
+  AISA.i18n.applyToDOM();
+
   const storage = window.AISA.storage;
   const clipboard = window.AISA.clipboard;
 
@@ -58,15 +61,15 @@
             (it.url ? ' · ' + escapeHtml(it.url) : '') +
           '</span>' +
           '<span class="item-actions">' +
-            '<button class="small" data-act="copy">复制</button>' +
-            '<button class="small danger" data-act="del">删除</button>' +
+            AISA.i18n.t('<button class="small" data-act="copy">复制</button>') +
+            AISA.i18n.t('<button class="small danger" data-act="del">删除</button>') +
           '</span>' +
         '</div>' +
         '<div class="item-text">' + escapeHtml(it.text) + '</div>';
 
       div.querySelector('[data-act="copy"]').addEventListener('click', async () => {
         const ok = await clipboard.copyText(it.text);
-        toast(ok ? '已复制' : '复制失败');
+        toast(ok ? AISA.i18n.t('已复制') : AISA.i18n.t('复制失败'));
       });
       div.querySelector('[data-act="del"]').addEventListener('click', async () => {
         await storage.removeHistoryItem(it.id);
@@ -84,10 +87,10 @@
   searchEl.addEventListener('input', () => render(searchEl.value));
 
   document.getElementById('btn-clear').addEventListener('click', async () => {
-    if (!confirm('确定要清空全部历史记录吗？此操作不可恢复。')) return;
+    if (!confirm(AISA.i18n.t('确定要清空全部历史记录吗？此操作不可恢复。'))) return;
     await storage.clearHistory();
     await refresh();
-    toast('已清空');
+    toast(AISA.i18n.t('已清空'));
   });
 
   // 监听存储变化，实时刷新（在别的页面复制时）

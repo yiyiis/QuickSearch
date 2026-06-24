@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 侧边栏助手</title>
+  <title data-i18n="AI 侧边栏助手">AI 侧边栏助手</title>
   <link rel="stylesheet" href="sidepanel.css" />
 </head>
 <body>
   <!-- 顶部可折叠面板：引用 + 提示词组装 -->
   <div id="top-panel" class="top-panel">
     <!-- 折叠条（始终可见，点击切换展开/折叠） -->
-    <div id="top-toggle" class="top-toggle" title="点击折叠/展开">
+    <div id="top-toggle" class="top-toggle" title="点击折叠/展开" data-i18n-title="点击折叠/展开">
       <span class="top-toggle-title">
-        <span id="top-summary">引用与组装</span>
+        <span id="top-summary" data-i18n="引用与组装">引用与组装</span>
       </span>
       <span class="top-toggle-right">
         <span id="top-hint" class="top-hint"></span>
-        <button id="btn-collapse" class="btn-collapse" title="折叠">折叠 ▴</button>
+        <button id="btn-collapse" class="btn-collapse" title="折叠" data-i18n-title="折叠" data-i18n="折叠 ▴">折叠 ▴</button>
       </span>
     </div>
     <!-- 折叠内容区 -->
@@ -24,46 +24,46 @@
       <!-- 引用预览条：当选中文字后会显示在这里 -->
       <div id="quote-bar" class="quote-bar hidden">
         <div class="quote-head">
-          <span class="quote-label">📌 已选中的引用</span>
+          <span class="quote-label" data-i18n="📌 已选中的引用">📌 已选中的引用</span>
           <span class="quote-actions">
-            <button id="quote-copy" title="复制引用到剪贴板">复制</button>
-            <button id="quote-insert" title="复制并提示你到输入框按 Ctrl+V">复制并粘贴提示</button>
-            <button id="quote-clear" title="清除引用">×</button>
+            <button id="quote-copy" title="复制引用到剪贴板" data-i18n-title="复制引用到剪贴板" data-i18n="复制">复制</button>
+            <button id="quote-insert" title="复制并提示你到输入框按 Ctrl+V" data-i18n-title="复制并提示你到输入框按 Ctrl+V" data-i18n="复制并粘贴提示">复制并粘贴提示</button>
+            <button id="quote-clear" title="清除引用" data-i18n-title="清除引用">×</button>
           </span>
         </div>
-        <div id="quote-text" class="quote-text" contenteditable="true" data-placeholder="（可直接编辑这段引用，+引用 / @ 会取这里的内容）"></div>
+        <div id="quote-text" class="quote-text" contenteditable="true" data-placeholder="（可直接编辑这段引用，+引用 / @ 会取这里的内容）" data-i18n-placeholder="（可直接编辑这段引用，+引用 / @ 会取这里的内容）"></div>
         <div id="quote-source" class="quote-source"></div>
       </div>
 
       <!-- 提示词组装区：@ 引用 -->
       <div class="composer">
         <div class="composer-head">
-          <span class="composer-label">💬 提示词组装 <span class="composer-tip">输入 @ 引用内容</span></span>
+          <span class="composer-label"><span data-i18n="💬 提示词组装 ">💬 提示词组装 </span><span class="composer-tip" data-i18n="输入 @ 引用内容">输入 @ 引用内容</span></span>
           <span class="composer-actions">
-            <button id="cmp-quick-add" title="将当前输入框内容存为模板">➕ 存为模板</button>
-            <button id="cmp-add-quote" title="引用顶部已选中的引用（可在上方编辑）">＋引用</button>
-            <button id="cmp-add-selection" title="快速引用当前选中">＋选中</button>
-            <button id="cmp-add-page" title="快速引用当前页面正文">＋页面</button>
-            <button id="cmp-clear" title="清空">清空</button>
+            <button id="cmp-quick-add" title="将当前输入框内容存为模板" data-i18n-title="将当前输入框内容存为模板" data-i18n="➕ 存为模板">➕ 存为模板</button>
+            <button id="cmp-add-quote" title="引用顶部已选中的引用（可在上方编辑）" data-i18n-title="引用顶部已选中的引用（可在上方编辑）" data-i18n="＋引用">＋引用</button>
+            <button id="cmp-add-selection" title="快速引用当前选中" data-i18n-title="快速引用当前选中" data-i18n="＋选中">＋选中</button>
+            <button id="cmp-add-page" title="快速引用当前页面正文" data-i18n-title="快速引用当前页面正文" data-i18n="＋页面">＋页面</button>
+            <button id="cmp-clear" title="清空" data-i18n-title="清空" data-i18n="清空">清空</button>
           </span>
         </div>
         <div class="editor-wrap">
-          <div id="cmp-editor" class="cmp-editor" contenteditable="true" data-placeholder="输入 / 插入模板 | 输入 @ 引用内容&#10;快捷键：@选定文字 / @页面"></div>
+          <div id="cmp-editor" class="cmp-editor" contenteditable="true" data-placeholder="输入 / 插入模板 | 输入 @ 引用内容&#10;快捷键：@选定文字 / @页面" data-i18n-placeholder="输入 / 插入模板 | 输入 @ 引用内容&#10;快捷键：@选定文字 / @页面"></div>
         
           <!-- 快捷添加模板面板 (默认隐藏) -->
           <div id="cmp-quick-add-modal" class="hidden">
-            <div class="qa-title">快捷存为模板</div>
-            <input type="text" id="qa-trigger" class="qa-input" placeholder="输入触发标志，如：fy" />
-            <textarea id="qa-content" class="qa-input" placeholder="提示词内容..." rows="3"></textarea>
+            <div class="qa-title" data-i18n="快捷存为模板">快捷存为模板</div>
+            <input type="text" id="qa-trigger" class="qa-input" placeholder="输入触发标志，如：fy" data-i18n-placeholder="输入触发标志，如：fy" />
+            <textarea id="qa-content" class="qa-input" placeholder="提示词内容..." rows="3" data-i18n-placeholder="提示词内容..."></textarea>
             <div class="qa-actions">
-              <button id="qa-cancel" class="qa-btn qa-btn-cancel">取消</button>
-              <button id="qa-confirm" class="qa-btn qa-btn-confirm">保存模板</button>
+              <button id="qa-cancel" class="qa-btn qa-btn-cancel" data-i18n="取消">取消</button>
+              <button id="qa-confirm" class="qa-btn qa-btn-confirm" data-i18n="保存模板">保存模板</button>
             </div>
           </div>
         </div>
         <div class="composer-foot">
-          <span id="cmp-stats" class="cmp-stats">0 字</span>
-          <button id="cmp-copy" class="cmp-copy primary">📋 组装并复制</button>
+          <span id="cmp-stats" class="cmp-stats" data-i18n="0 字">0 字</span>
+          <button id="cmp-copy" class="cmp-copy primary" data-i18n="📋 组装并复制">📋 组装并复制</button>
         </div>
         <!-- @ 候选菜单 -->
         <div id="at-menu" class="at-menu hidden"></div>
@@ -80,31 +80,31 @@
     <div id="frame-overlay" class="frame-overlay">
       <div class="overlay-card">
         <div class="spinner"></div>
-        <div id="overlay-text">正在加载…</div>
+        <div id="overlay-text" data-i18n="正在加载…">正在加载…</div>
       </div>
     </div>
   </div>
 
   <!-- 底部工具条 -->
   <div class="bottom-bar">
-    <button id="btn-reload" title="刷新当前 AI 页面">↻ 刷新</button>
-    <button id="btn-open-window" title="在独立窗口打开当前 AI 站点">⤢ 新窗口</button>
-    <button id="btn-options" title="打开设置">⚙ 设置</button>
-    <button id="btn-history" title="剪贴板历史">📋 历史</button>
+    <button id="btn-reload" title="刷新当前 AI 页面" data-i18n-title="刷新当前 AI 页面" data-i18n="↻ 刷新">↻ 刷新</button>
+    <button id="btn-open-window" title="在独立窗口打开当前 AI 站点" data-i18n-title="在独立窗口打开当前 AI 站点" data-i18n="⤢ 新窗口">⤢ 新窗口</button>
+    <button id="btn-options" title="打开设置" data-i18n-title="打开设置" data-i18n="⚙ 设置">⚙ 设置</button>
+    <button id="btn-history" title="剪贴板历史" data-i18n-title="剪贴板历史" data-i18n="📋 历史">📋 历史</button>
   </div>
 
   <!-- 快捷添加站点 modal -->
   <div id="site-add-modal" class="site-add-modal hidden">
     <div class="site-add-backdrop" id="sa-backdrop"></div>
     <div class="site-add-card">
-      <div class="site-add-title">添加新站点</div>
-      <input type="text" id="sa-name" class="site-add-input" placeholder="名称（如 ChatGPT）" maxlength="20" />
-      <input type="text" id="sa-url" class="site-add-input" placeholder="网址 https://…" />
-      <input type="text" id="sa-icon" class="site-add-input" placeholder="图标 emoji（可空）" maxlength="4" />
-      <div class="site-add-hint">提示：tab 上右键可置顶/取消置顶；非置顶 tab 可拖拽排序。</div>
+      <div class="site-add-title" data-i18n="添加新站点">添加新站点</div>
+      <input type="text" id="sa-name" class="site-add-input" placeholder="名称（如 ChatGPT）" maxlength="20" data-i18n-placeholder="名称（如 ChatGPT）" />
+      <input type="text" id="sa-url" class="site-add-input" placeholder="网址 https://…" data-i18n-placeholder="网址 https://…" />
+      <input type="text" id="sa-icon" class="site-add-input" placeholder="图标 emoji（可空）" maxlength="4" data-i18n-placeholder="图标 emoji（可空）" />
+      <div class="site-add-hint" data-i18n="提示：tab 上右键可置顶/取消置顶；非置顶 tab 可拖拽排序。">提示：tab 上右键可置顶/取消置顶；非置顶 tab 可拖拽排序。</div>
       <div class="site-add-actions">
-        <button id="sa-cancel" class="site-add-btn site-add-btn-cancel">取消</button>
-        <button id="sa-save" class="site-add-btn site-add-btn-confirm">添加</button>
+        <button id="sa-cancel" class="site-add-btn site-add-btn-cancel" data-i18n="取消">取消</button>
+        <button id="sa-save" class="site-add-btn site-add-btn-confirm" data-i18n="添加">添加</button>
       </div>
     </div>
   </div>
@@ -112,6 +112,7 @@
   <!-- toast 提示 -->
   <div id="toast" class="toast hidden"></div>
 
+  <script src="../../lib/i18n.js"></script>
   <script src="../../lib/storage.js"></script>
   <script src="../../lib/clipboard.js"></script>
   <script src="sidepanel.js"></script>

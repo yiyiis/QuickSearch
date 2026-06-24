@@ -1,0 +1,9 @@
+{
+  "extName": { "message": "AI 侧边栏助手" },
+  "extDesc": { "message": "在浏览器侧边栏一键打开 ChatGPT/Claude/Gemini 等真实网页端；任意网页（含禁止复制站点）选中文字即可自动复制、引用并一键插入 AI 输入框。" },
+  "actionTitle": { "message": "AI 侧边栏助手（点击打开）" },
+  "cmdExecuteAction": { "message": "打开/聚焦 AI 侧边栏" },
+  "cmdCopyCurrentTab": { "message": "复制当前标签页信息" },
+  "cmdToggleAutocopy": { "message": "切换选中文字自动复制" },
+  "cmdOpenHistory": { "message": "打开剪贴板历史记录" }
+}

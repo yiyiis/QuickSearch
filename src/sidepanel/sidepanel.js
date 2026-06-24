@@ -14,10 +14,10 @@
     { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '../../assets/site-icons/claude.png' },
     { id: 'gemini', name: 'Gemini', url: 'https://gemini.google.com/app', icon: '../../assets/site-icons/gemini.png' },
     { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com/', icon: '../../assets/site-icons/deepseek.png' },
-    { id: 'tongyi', name: '通义千问', url: 'https://tongyi.aliyun.com/qianwen/', icon: '../../assets/site-icons/tongyi.png' },
+    { id: 'tongyi', name: AISA.i18n.t('通义千问'), url: 'https://tongyi.aliyun.com/qianwen/', icon: '../../assets/site-icons/tongyi.png' },
     { id: 'kimi', name: 'Kimi', url: 'https://kimi.moonshot.cn/', icon: '../../assets/site-icons/kimi.png' },
-    { id: 'glm', name: '智谱清言', url: 'https://chatglm.cn/main/alltoolsdetail', icon: '../../assets/site-icons/glm.png' },
-    { id: 'yiyan', name: '文心一言', url: 'https://yiyan.baidu.com/', icon: '../../assets/site-icons/yiyan.png' }
+    { id: 'glm', name: AISA.i18n.t('智谱清言'), url: 'https://chatglm.cn/main/alltoolsdetail', icon: '../../assets/site-icons/glm.png' },
+    { id: 'yiyan', name: AISA.i18n.t('文心一言'), url: 'https://yiyan.baidu.com/', icon: '../../assets/site-icons/yiyan.png' }
   ];
 
   const tabsEl = document.getElementById('site-tabs');
@@ -48,7 +48,7 @@
   }
 
   function showOverlay(text) {
-    overlayTextEl.textContent = text || '正在加载…';
+    overlayTextEl.textContent = text || AISA.i18n.t('正在加载…');
     overlayEl.classList.remove('hidden');
   }
   function hideOverlay() {
@@ -60,7 +60,7 @@
     if (q && q.text) {
       // 用 textContent 赋值（覆盖任何已有内容，含用户编辑）
       quoteTextEl.textContent = q.text;
-      quoteSourceEl.textContent = q.source ? '来自：' + q.source : '';
+      quoteSourceEl.textContent = q.source ? AISA.i18n.t('来自：') + q.source : '';
       quoteBarEl.classList.remove('hidden');
     } else {
       quoteBarEl.classList.add('hidden');
@@ -124,7 +124,7 @@
     const addBtn = document.createElement('button');
     addBtn.className = 'site-tab site-tab-add';
     addBtn.type = 'button';
-    addBtn.title = '添加新站点';
+    addBtn.title = AISA.i18n.t('添加新站点');
     addBtn.innerHTML = '<span class="ico">＋</span>';
     addBtn.addEventListener('click', () => openSiteAddModal());
     tabsEl.appendChild(addBtn);
@@ -147,7 +147,7 @@
         iconHtml = escapeHtml(site.icon || '•');
       }
 
-      const pinHtml = site.pinned ? '<span class="pin-badge" title="已置顶">📌</span>' : '';
+      const pinHtml = site.pinned ? '<span class="pin-badge" title="' + AISA.i18n.t('已置顶') + '">📌</span>' : '';
       btn.innerHTML =
         '<span class="ico">' + iconHtml + '</span>' +
         '<span class="lbl">' + escapeHtml(site.name) + '</span>' +
@@ -175,7 +175,7 @@
     await storage.saveSites(currentSites);
     renderTabs();
     const s = currentSites.find((x) => x.id === id);
-    showToast(s && s.pinned ? '已置顶' : '已取消置顶', 1200);
+    showToast(s && s.pinned ? AISA.i18n.t('已置顶') : AISA.i18n.t('已取消置顶'), 1200);
   }
 
   // ---------- 拖拽排序（置顶区/非置顶区各自内部可拖，跨区被拒绝） ----------
@@ -252,7 +252,7 @@
     const name = (document.getElementById('sa-name').value || '').trim();
     const url = (document.getElementById('sa-url').value || '').trim();
     const icon = (document.getElementById('sa-icon').value || '').trim();
-    if (!name || !url) { showToast('请填写名称和网址', 2000); return; }
+    if (!name || !url) { showToast(AISA.i18n.t('请填写名称和网址'), 2000); return; }
     const finalUrl = /^https?:\/\//i.test(url) ? url : 'https://' + url;
     currentSites = storage.addSite(currentSites, {
       id: 'custom_' + Date.now(),
@@ -264,7 +264,7 @@
     await storage.saveSites(currentSites);
     renderTabs();
     closeSiteAddModal();
-    showToast('已添加站点：' + name, 1500);
+    showToast(AISA.i18n.t('已添加站点：') + name, 1500);
     selectSite(newSite);
   }
 
@@ -282,7 +282,7 @@
       if (!el.dataset || !el.dataset.id) return;
       el.classList.toggle('active', el.dataset.id === site.id);
     });
-    showOverlay('正在加载 ' + site.name + ' …');
+    showOverlay(AISA.i18n.t('正在加载 ') + site.name + AISA.i18n.t(' …'));
     frameEl.src = site.url;
     // 按标签记住站点（每个标签是独立 sidePanel 实例，各自记自己的 AI）
     if (currentTabId != null) {
@@ -304,7 +304,7 @@
   // 加载超时兜底（部分站点可能很慢）
   setTimeout(() => {
     if (!overlayEl.classList.contains('hidden')) {
-      overlayTextEl.textContent = '加载时间较长，请稍候…（部分站点需先在新窗口登录）';
+      overlayTextEl.textContent = AISA.i18n.t('加载时间较长，请稍候…（部分站点需先在新窗口登录）');
     }
   }, 8000);
 
@@ -312,16 +312,16 @@
   document.getElementById('quote-copy').addEventListener('click', async () => {
     if (!currentQuote) return;
     const ok = await clipboard.copyText(currentQuote.text);
-    showToast(ok ? '已复制到剪贴板' : '复制失败');
+    showToast(ok ? AISA.i18n.t('已复制到剪贴板') : AISA.i18n.t('复制失败'));
   });
 
   document.getElementById('quote-insert').addEventListener('click', async () => {
     if (!currentQuote) return;
     const ok = await clipboard.copyText(currentQuote.text);
     if (ok) {
-      showToast('已复制！请点击 AI 输入框，按 Ctrl+V 粘贴', 4000);
+      showToast(AISA.i18n.t('已复制！请点击 AI 输入框，按 Ctrl+V 粘贴'), 4000);
     } else {
-      showToast('复制失败，请手动复制');
+      showToast(AISA.i18n.t('复制失败，请手动复制'));
     }
   });
 
@@ -333,7 +333,7 @@
   // ---------- 底部工具 ----------
   document.getElementById('btn-reload').addEventListener('click', () => {
     if (currentSite) {
-      showOverlay('刷新中…');
+      showOverlay(AISA.i18n.t('刷新中…'));
       frameEl.src = frameEl.src;
     }
   });
@@ -377,7 +377,7 @@
     } else if (msg && msg.type === 'AISA_ADD_TO_COMPOSER') {
       // 来自网页浮动按钮"加到组装"：在 composer 插入一个芯片
       if (window.AISA && window.AISA.addRefToComposer) {
-        window.AISA.addRefToComposer({ label: '网页选中', text: msg.text || '', source: msg.source || '' });
+        window.AISA.addRefToComposer({ label: AISA.i18n.t('网页选中'), text: msg.text || '', source: msg.source || '' });
       }
       autoExpandTop(); // 加到组装也自动展开顶部面板
       sendResponse({ ok: true });
@@ -411,7 +411,7 @@
   async function setCollapsed(collapsed, skipSave) {
     topPanelEl.classList.toggle('collapsed', collapsed);
     const btn = document.getElementById('btn-collapse');
-    if (btn) btn.textContent = collapsed ? '展开 ▾' : '折叠 ▴';
+    if (btn) btn.textContent = collapsed ? AISA.i18n.t('展开 ▾') : AISA.i18n.t('折叠 ▴');
     if (!skipSave) {
       try { await chrome.storage.local.set({ [COLLAPSE_KEY]: collapsed }); } catch (e) {}
     }
@@ -421,10 +421,10 @@
   function updateTopHint() {
     let parts = [];
     const quoteText = (quoteTextEl.innerText || '').trim();
-    if (quoteText) parts.push('📌引用');
+    if (quoteText) parts.push(AISA.i18n.t('📌引用'));
     if (window.AISA && window.AISA.getComposerChipCount) {
       const n = window.AISA.getComposerChipCount();
-      if (n > 0) parts.push('💬' + n + '段');
+      if (n > 0) parts.push('💬' + n + AISA.i18n.t('段'));
     }
     topHintEl.textContent = parts.length ? parts.join(' · ') : '';
   }
@@ -434,6 +434,8 @@
 
   // ---------- 启动 ----------
   (async function init() {
+    await AISA.i18n.init();
+    AISA.i18n.applyToDOM();
     await loadSites();
     // 获取当前窗口 + 活动 tab（每个标签是独立 sidePanel 实例，按 tab 记站点）
     try {
@@ -500,9 +502,9 @@
       if (!queue.length) return;
       if (window.AISA && window.AISA.addRefToComposer) {
         queue.forEach((it) => {
-          window.AISA.addRefToComposer({ label: it.label || '网页选中', text: it.text || '', source: it.source || '' });
+          window.AISA.addRefToComposer({ label: it.label || AISA.i18n.t('网页选中'), text: it.text || '', source: it.source || '' });
         });
-        if (typeof showToast === 'function') showToast('已补插 ' + queue.length + ' 条待组装引用', 2500);
+        if (typeof showToast === 'function') showToast(AISA.i18n.t('已补插 ') + queue.length + AISA.i18n.t(' 条待组装引用'), 2500);
         autoExpandTop(); // 有待补插内容，自动展开
       }
       await chrome.storage.local.set({ aisa_pending_compose: [] });

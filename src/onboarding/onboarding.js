@@ -1,7 +1,21 @@
 /* src/onboarding/onboarding.js
  * 首次安装/更新后的使用指引页。
  */
-(function () {
+(async function () {
+  await AISA.i18n.init();
+  AISA.i18n.applyToDOM();
+
+  const langSelect = document.getElementById('onboarding-locale');
+  if (langSelect) {
+    langSelect.value = AISA.i18n.locale;
+    langSelect.addEventListener('change', async () => {
+      if (typeof AISA.storage !== 'undefined' && AISA.storage.saveSettings) {
+        await AISA.storage.saveSettings({ locale: langSelect.value });
+      }
+      location.reload();
+    });
+  }
+
   const btn = document.getElementById('btn-open');
 
   // 页面初始化时【提前】拿到自身 tab/window id，缓存起来。
@@ -36,17 +50,17 @@
         // 优先用 tabId（per-tab 打开，与主路径一致）；无 tabId 则用 windowId。
         const opt = myTabId != null ? { tabId: myTabId } : (myWindowId != null ? { windowId: myWindowId } : {});
         chrome.sidePanel.open(opt).then(() => {
-          btn.textContent = '✓ 已打开，请看右侧';
+          btn.textContent = AISA.i18n.t('✓ 已打开，请看右侧');
         }).catch(() => {
-          btn.textContent = '自动打开失败，请点工具栏扩展图标或按 Alt+Q';
+          btn.textContent = AISA.i18n.t('自动打开失败，请点工具栏扩展图标或按 Alt+Q');
           btn.style.color = '#dc2626';
         });
       } else {
-        btn.textContent = '当前浏览器不支持，请用 Chrome 114+';
+        btn.textContent = AISA.i18n.t('当前浏览器不支持，请用 Chrome 114+');
         btn.style.color = '#dc2626';
       }
     } catch (e) {
-      btn.textContent = '打开失败，请点工具栏扩展图标或按 Alt+Q';
+      btn.textContent = AISA.i18n.t('打开失败，请点工具栏扩展图标或按 Alt+Q');
       btn.style.color = '#dc2626';
     }
   });

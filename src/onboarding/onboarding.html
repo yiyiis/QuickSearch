@@ -3,86 +3,94 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI 侧边栏助手 · 使用指引</title>
+  <title data-i18n="AI 侧边栏助手 · 使用指引">AI 侧边栏助手 · 使用指引</title>
   <link rel="stylesheet" href="onboarding.css" />
 </head>
 <body>
   <div class="hero">
+    <div class="lang-switch" style="margin-bottom: 24px; text-align: center;">
+      <select id="onboarding-locale" style="padding: 10px 24px; border: 2px solid #3b82f6; border-radius: 8px; font-size: 16px; font-weight: bold; background: #eff6ff; color: #1e3a8a; outline: none; cursor: pointer; box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);">
+        <option value="zh">🌐 简体中文</option>
+        <option value="en">🌐 English</option>
+      </select>
+    </div>
     <img src="../../assets/icons/icon-128.png" alt="" class="hero-logo" />
-    <h1>AI 侧边栏助手</h1>
-    <p class="subtitle">在浏览器侧边栏一键打开 ChatGPT / Claude / Gemini 等真实网页端</p>
+    <h1 data-i18n="AI 侧边栏助手">AI 侧边栏助手</h1>
+    <p class="subtitle" data-i18n="在浏览器侧边栏一键打开 ChatGPT / Claude / Gemini 等真实网页端">在浏览器侧边栏一键打开 ChatGPT / Claude / Gemini 等真实网页端</p>
   </div>
 
   <!-- 最重要：先看懂这个，否则会以为「打开了没反应」 -->
   <div class="card highlight">
     <div class="card-icon">⚠️</div>
     <div class="card-body">
-      <h2>重要：侧边栏按标签页独立运行</h2>
-      <p>这是本扩展最关键的行为，请先了解：</p>
+      <h2 data-i18n="重要：侧边栏按标签页独立运行">重要：侧边栏按标签页独立运行</h2>
+      <p data-i18n="这是本扩展最关键的行为，请先了解：">这是本扩展最关键的行为，请先了解：</p>
       <ul class="key-points">
-        <li>在 <b>标签页 A</b> 打开的侧边栏，<b>只显示在 A</b>。</li>
-        <li>切到 <b>标签页 B</b>，侧边栏会<b>自动收起</b>（不是关闭、内容不丢）。</li>
-        <li>切回 A，侧边栏<b>自动恢复</b>。</li>
+        <li><span data-i18n="在">在</span> <b><span data-i18n="标签页 A">标签页 A</span></b> <span data-i18n="打开的侧边栏，">打开的侧边栏，</span><b><span data-i18n="只显示在 A">只显示在 A</span></b>。</li>
+        <li><span data-i18n="切到">切到</span> <b><span data-i18n="标签页 B">标签页 B</span></b><span data-i18n="，侧边栏会">，侧边栏会</span><b><span data-i18n="自动收起">自动收起</span></b><span data-i18n="（不是关闭、内容不丢）。">（不是关闭、内容不丢）。</span></li>
+        <li><span data-i18n="切回 A，侧边栏">切回 A，侧边栏</span><b><span data-i18n="自动恢复">自动恢复</span></b>。</li>
       </ul>
-      <p class="note">所以：如果切到某个标签后看不到侧边栏，不是坏了——那个标签还没打开过侧边栏，在该标签点一下扩展图标/悬浮图标即可。</p>
+      <p class="note" data-i18n="所以：如果切到某个标签后看不到侧边栏，不是坏了——那个标签还没打开过侧边栏，在该标签点一下扩展图标/悬浮图标即可。">所以：如果切到某个标签后看不到侧边栏，不是坏了——那个标签还没打开过侧边栏，在该标签点一下扩展图标/悬浮图标即可。</p>
     </div>
   </div>
 
   <div class="card important">
     <div class="card-icon">📌</div>
     <div class="card-body">
-      <h2>第一步：把扩展固定到工具栏</h2>
-      <p>把扩展图标固定到工具栏，以后点一下就能打开侧边栏：</p>
+      <h2 data-i18n="第一步：把扩展固定到工具栏">第一步：把扩展固定到工具栏</h2>
+      <p data-i18n="把扩展图标固定到工具栏，以后点一下就能打开侧边栏：">把扩展图标固定到工具栏，以后点一下就能打开侧边栏：</p>
       <ol class="steps">
-        <li>点击浏览器右上角的 <b>拼图 🧩 图标</b></li>
-        <li>在列表中找到 <b>「AI 侧边栏助手」</b></li>
-        <li>点击它右边的 <b>📌 图钉</b>，把它固定到工具栏</li>
+        <li><span data-i18n="点击浏览器右上角的">点击浏览器右上角的</span> <b><span data-i18n="拼图 🧩 图标">拼图 🧩 图标</span></b></li>
+        <li><span data-i18n="在列表中找到">在列表中找到</span> <b><span data-i18n="「AI 侧边栏助手」">「AI 侧边栏助手」</span></b></li>
+        <li><span data-i18n="点击它右边的">点击它右边的</span> <b><span data-i18n="📌 图钉">📌 图钉</span></b><span data-i18n="，把它固定到工具栏">，把它固定到工具栏</span></li>
       </ol>
-      <p class="note">固定后，扩展图标常驻工具栏，随时可点。</p>
+      <p class="note" data-i18n="固定后，扩展图标常驻工具栏，随时可点。">固定后，扩展图标常驻工具栏，随时可点。</p>
     </div>
   </div>
 
   <div class="card">
     <div class="card-icon">🖱️</div>
     <div class="card-body">
-      <h2>打开侧边栏的三种方式</h2>
+      <h2 data-i18n="打开侧边栏的三种方式">打开侧边栏的三种方式</h2>
       <div class="ways">
         <div class="way">
-          <span class="way-badge">方式一</span>
-          <span>点击工具栏上的 <img src="../../assets/icons/icon-32.png" class="inline-icon" alt="" /> <b>扩展图标</b>，一下就开</span>
+          <span class="way-badge" data-i18n="方式一">方式一</span>
+          <span><span data-i18n="点击工具栏上的">点击工具栏上的</span> <img src="../../assets/icons/icon-32.png" class="inline-icon" alt="" /> <b><span data-i18n="扩展图标">扩展图标</span></b><span data-i18n="，一下就开">，一下就开</span></span>
         </div>
         <div class="way">
-          <span class="way-badge">方式二</span>
-          <span>任意网页右下角的 <b>悬浮图标</b>，点击打开</span>
+          <span class="way-badge" data-i18n="方式二">方式二</span>
+          <span><span data-i18n="任意网页右下角的">任意网页右下角的</span> <b><span data-i18n="悬浮图标">悬浮图标</span></b><span data-i18n="，点击打开">，点击打开</span></span>
         </div>
         <div class="way">
-          <span class="way-badge">方式三</span>
-          <span>快捷键 <kbd>Alt</kbd> + <kbd>Q</kbd>（可在 chrome://extensions/shortcuts 修改）</span>
+          <span class="way-badge" data-i18n="方式三">方式三</span>
+          <span><span data-i18n="快捷键">快捷键</span> <kbd>Alt</kbd> + <kbd>Q</kbd><span data-i18n="（可在 chrome://extensions/shortcuts 修改）">（可在 chrome://extensions/shortcuts 修改）</span></span>
         </div>
       </div>
-      <p class="note">侧边栏按标签页独立显示：在哪个标签打开就只在那个标签出现，切到别的标签自动收起，不会互相干扰。</p>
+      <p class="note" data-i18n="侧边栏按标签页独立显示：在哪个标签打开就只在那个标签出现，切到别的标签自动收起，不会互相干扰。">侧边栏按标签页独立显示：在哪个标签打开就只在那个标签出现，切到别的标签自动收起，不会互相干扰。</p>
     </div>
   </div>
 
   <div class="card">
     <div class="card-icon">✨</div>
     <div class="card-body">
-      <h2>更多用法</h2>
+      <h2 data-i18n="更多用法">更多用法</h2>
       <ul class="features">
-        <li>选中网页文字 → 自动复制 / 点「发到侧边栏」引用给 AI</li>
-        <li>开启「超级复制」破解禁止复制的网站</li>
-        <li><kbd>Alt</kbd>+<kbd>1</kbd> 复制标签页 · <kbd>Alt</kbd>+<kbd>3</kbd> 切换自动复制 · <kbd>Alt</kbd>+<kbd>4</kbd> 剪贴板历史</li>
+        <li data-i18n="选中网页文字 → 自动复制 / 点「发到侧边栏」引用给 AI">选中网页文字 → 自动复制 / 点「发到侧边栏」引用给 AI</li>
+        <li data-i18n="开启「超级复制」破解禁止复制的网站">开启「超级复制」破解禁止复制的网站</li>
+        <li><kbd>Alt</kbd>+<kbd>1</kbd> <span data-i18n="复制标签页 ·">复制标签页 ·</span> <kbd>Alt</kbd>+<kbd>3</kbd> <span data-i18n="切换自动复制 ·">切换自动复制 ·</span> <kbd>Alt</kbd>+<kbd>4</kbd> <span data-i18n="剪贴板历史">剪贴板历史</span></li>
       </ul>
     </div>
   </div>
 
   <div class="actions">
-    <button id="btn-done" class="primary">我已固定，开始使用</button>
-    <button id="btn-open" class="secondary">立即打开侧边栏试试</button>
+    <button id="btn-done" class="primary" data-i18n="我已固定，开始使用">我已固定，开始使用</button>
+    <button id="btn-open" class="secondary" data-i18n="立即打开侧边栏试试">立即打开侧边栏试试</button>
   </div>
 
-  <p class="privacy">🔒 所有数据仅保存在本地浏览器，不会上传任何服务器。</p>
+  <p class="privacy" data-i18n="🔒 所有数据仅保存在本地浏览器，不会上传任何服务器。">🔒 所有数据仅保存在本地浏览器，不会上传任何服务器。</p>
 
+  <script src="../../lib/i18n.js"></script>
+  <script src="../../lib/storage.js"></script>
   <script src="onboarding.js"></script>
 </body>
 </html>

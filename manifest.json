@@ -1,8 +1,9 @@
 {
   "manifest_version": 3,
-  "name": "AI 侧边栏助手",
+  "default_locale": "zh_CN",
+  "name": "__MSG_extName__",
   "version": "0.2.0",
-  "description": "在浏览器侧边栏一键打开 ChatGPT/Claude/Gemini 等真实网页端；任意网页（含禁止复制站点）选中文字即可自动复制、引用并一键插入 AI 输入框。",
+  "description": "__MSG_extDesc__",
   "minimum_chrome_version": "114",
   "icons": {
     "16": "assets/icons/icon-16.png",
@@ -11,7 +12,7 @@
     "128": "assets/icons/icon-128.png"
   },
   "action": {
-    "default_title": "AI 侧边栏助手（点击打开）",
+    "default_title": "__MSG_actionTitle__",
     "default_icon": {
       "16": "assets/icons/icon-16.png",
       "32": "assets/icons/icon-32.png"
@@ -73,19 +74,19 @@
   "commands": {
     "_execute_action": {
       "suggested_key": { "default": "Alt+Q" },
-      "description": "打开/聚焦 AI 侧边栏"
+      "description": "__MSG_cmdExecuteAction__"
     },
     "copy-current-tab": {
       "suggested_key": { "default": "Alt+1" },
-      "description": "复制当前标签页信息"
+      "description": "__MSG_cmdCopyCurrentTab__"
     },
     "toggle-autocopy": {
       "suggested_key": { "default": "Alt+3" },
-      "description": "切换选中文字自动复制"
+      "description": "__MSG_cmdToggleAutocopy__"
     },
     "open-history": {
       "suggested_key": { "default": "Alt+4" },
-      "description": "打开剪贴板历史记录"
+      "description": "__MSG_cmdOpenHistory__"
     }
   }
 }

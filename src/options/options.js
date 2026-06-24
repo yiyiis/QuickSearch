@@ -9,10 +9,10 @@
     { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: '../../assets/site-icons/claude.png' },
     { id: 'gemini', name: 'Gemini', url: 'https://gemini.google.com/app', icon: '../../assets/site-icons/gemini.png' },
     { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com/', icon: '../../assets/site-icons/deepseek.png' },
-    { id: 'tongyi', name: '通义千问', url: 'https://tongyi.aliyun.com/qianwen/', icon: '../../assets/site-icons/tongyi.png' },
+    { id: 'tongyi', name: AISA.i18n.t('通义千问'), url: 'https://tongyi.aliyun.com/qianwen/', icon: '../../assets/site-icons/tongyi.png' },
     { id: 'kimi', name: 'Kimi', url: 'https://kimi.moonshot.cn/', icon: '../../assets/site-icons/kimi.png' },
-    { id: 'glm', name: '智谱清言', url: 'https://chatglm.cn/main/alltoolsdetail', icon: '../../assets/site-icons/glm.png' },
-    { id: 'yiyan', name: '文心一言', url: 'https://yiyan.baidu.com/', icon: '../../assets/site-icons/yiyan.png' }
+    { id: 'glm', name: AISA.i18n.t('智谱清言'), url: 'https://chatglm.cn/main/alltoolsdetail', icon: '../../assets/site-icons/glm.png' },
+    { id: 'yiyan', name: AISA.i18n.t('文心一言'), url: 'https://yiyan.baidu.com/', icon: '../../assets/site-icons/yiyan.png' }
   ];
 
   let settings = null;
@@ -47,6 +47,7 @@
         });
 
         const patch = {
+          locale: $('opt-locale').value,
           copyFormat: $('opt-copyFormat').value,
           autoCopyFormat: $('opt-autoCopyFormat').value,
           minChars: Math.max(1, parseInt($('opt-minChars').value, 10) || 1),
@@ -62,9 +63,9 @@
         await storage.saveSites(sites);
         await storage.savePrompts(prompts);
         chrome.runtime.sendMessage({ type: 'AISA_SETTINGS_CHANGED' }).catch(() => {});
-        status('自动保存成功', false, 2000);
+        status(AISA.i18n.t('自动保存成功'), false, 2000);
       } catch (e) {
-        status('自动保存失败: ' + e.message, true);
+        status(AISA.i18n.t('自动保存失败: ') + e.message, true);
       }
     }, 500);
   }
@@ -75,16 +76,19 @@
     el.style.color = isErr ? '#dc2626' : '#059669';
     if (msg) {
       setTimeout(() => { 
-        if (el.textContent === msg) el.textContent = '已开启自动保存'; 
+        if (el.textContent === msg) el.textContent = AISA.i18n.t('已开启自动保存'); 
       }, duration);
     }
   }
 
   // ---------- 加载 ----------
   async function load() {
+    await AISA.i18n.init();
+    AISA.i18n.applyToDOM();
     settings = await storage.getSettings();
     sites = (await storage.getSites()) || DEFAULT_SITES.map((s) => Object.assign({}, s));
 
+    $('opt-locale').value = settings.locale || 'zh';
     $('opt-copyFormat').value = settings.copyFormat || '';
     $('opt-autoCopyFormat').value = settings.autoCopyFormat || '';
     $('opt-minChars').value = settings.minChars || 1;
@@ -101,6 +105,13 @@
     renderOverrides();
     
     ['opt-copyFormat', 'opt-autoCopyFormat', 'opt-minChars', 'opt-historyLimit'].forEach(id => $(id).addEventListener('input', scheduleSave));
+    $('opt-locale').addEventListener('change', async () => {
+      try {
+        const patch = { locale: $('opt-locale').value };
+        await storage.saveSettings(patch);
+        location.reload();
+      } catch (e) {}
+    });
     ['opt-superCopy', 'opt-autoCopy', 'opt-showFloatBtn', 'opt-showLauncher'].forEach(id => $(id).addEventListener('change', scheduleSave));
     $('opt-overrides').addEventListener('input', scheduleSave);
 
@@ -150,19 +161,19 @@
       }
 
       const pinBtn = s.pinned
-        ? '<button data-act="pin" class="active" title="取消置顶">📌</button>'
-        : '<button data-act="pin" title="置顶">📍</button>';
+        ? '<button data-act="pin" class="active" title="' + AISA.i18n.t('取消置顶') + '">📌</button>'
+        : '<button data-act="pin" title="' + AISA.i18n.t('置顶') + '">📍</button>';
 
       row.innerHTML =
-        '<span class="drag-handle" title="拖拽排序">⠿</span>' +
+        '<span class="drag-handle" title="' + AISA.i18n.t('拖拽排序') + '">⠿</span>' +
         '<span class="ico">' + iconHtml + '</span>' +
         '<span class="name">' + escapeHtml(s.name || '') + '</span>' +
         '<span class="url">' + escapeHtml(s.url || '') + '</span>' +
         pinBtn +
-        '<button data-act="up" title="上移">▲</button>' +
-        '<button data-act="down" title="下移">▼</button>' +
-        '<button data-act="edit" title="编辑">✎</button>' +
-        '<button data-act="del" title="删除">✕</button>';
+        '<button data-act="up" title="' + AISA.i18n.t('上移') + '">▲</button>' +
+        '<button data-act="down" title="' + AISA.i18n.t('下移') + '">▼</button>' +
+        '<button data-act="edit" title="' + AISA.i18n.t('编辑') + '">✎</button>' +
+        '<button data-act="del" title="' + AISA.i18n.t('删除') + '">✕</button>';
 
       // ▲▼ 边界禁用：区域内首个不可上移，区域内末个不可下移
       const isPinned = !!s.pinned;
@@ -275,7 +286,7 @@
     const url = $('site-url').value.trim();
     const icon = $('site-icon').value.trim();
     if (!name || !url) {
-      status('请填写名称和 URL', true);
+      status(AISA.i18n.t('请填写名称和 URL'), true);
       return;
     }
     // 编辑模式：保留原 order/pinnedOrder（仅改名/网址/图标）；新增模式：用 addSite 分配 order。
@@ -312,7 +323,7 @@
   });
 
   $('btn-site-reset').addEventListener('click', () => {
-    if (!confirm('恢复为默认站点列表？当前自定义将丢失。')) return;
+    if (!confirm(AISA.i18n.t('恢复为默认站点列表？当前自定义将丢失。'))) return;
     sites = DEFAULT_SITES.map((s) => Object.assign({}, s));
     renderSites();
     scheduleSave();
@@ -333,9 +344,9 @@
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      status('已导出备份文件', false, 2500);
+      status(AISA.i18n.t('已导出备份文件'), false, 2500);
     } catch (e) {
-      status('导出失败: ' + e.message, true);
+      status(AISA.i18n.t('导出失败: ') + e.message, true);
     }
   });
 
@@ -348,12 +359,12 @@
     try {
       const text = await file.text();
       const payload = JSON.parse(text);
-      if (!confirm('导入将覆盖当前所有设置、提示词与历史，确定继续？')) return;
+      if (!confirm(AISA.i18n.t('导入将覆盖当前所有设置、提示词与历史，确定继续？'))) return;
       await storage.importAll(payload);
-      status('导入成功，正在刷新…', false, 1500);
+      status(AISA.i18n.t('导入成功，正在刷新…'), false, 1500);
       setTimeout(() => location.reload(), 1200);
     } catch (e) {
-      status('导入失败: ' + e.message, true);
+      status(AISA.i18n.t('导入失败: ') + e.message, true);
     }
   });
 
@@ -367,10 +378,10 @@
       row.innerHTML =
         '<span class="name" style="width: 80px; color: #4338ca; font-family: monospace;">/' + escapeHtml(p.trigger || '') + '</span>' +
         '<span class="url" style="flex: 1; color: #475569;">' + escapeHtml((p.content || '').substring(0, 30)) + '...</span>' +
-        '<button data-act="up" title="上移">▲</button>' +
-        '<button data-act="down" title="下移">▼</button>' +
-        '<button data-act="edit" title="编辑">✎</button>' +
-        '<button data-act="del" title="删除">✕</button>';
+        '<button data-act="up" title="' + AISA.i18n.t('上移') + '">▲</button>' +
+        '<button data-act="down" title="' + AISA.i18n.t('下移') + '">▼</button>' +
+        '<button data-act="edit" title="' + AISA.i18n.t('编辑') + '">✎</button>' +
+        '<button data-act="del" title="' + AISA.i18n.t('删除') + '">✕</button>';
       
       if (idx === 0) row.querySelector('[data-act="up"]').disabled = true;
       if (idx === prompts.length - 1) row.querySelector('[data-act="down"]').disabled = true;
@@ -408,11 +419,11 @@
     const trigger = $('prompt-trigger').value.trim();
     const content = $('prompt-content').value.trim();
     if (!trigger || !content) {
-      status('标志和内容不能为空', true);
+      status(AISA.i18n.t('标志和内容不能为空'), true);
       return;
     }
     if (prompts.find((p) => p.trigger === trigger)) {
-      status('标志已存在', true);
+      status(AISA.i18n.t('标志已存在'), true);
       return;
     }
     prompts.push({ trigger, content });

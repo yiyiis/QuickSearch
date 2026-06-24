@@ -85,7 +85,7 @@
     
     // 如果是提示词，label自带有 '/' 前缀，引用则补上 '@'
     const prefix = ref.kind === 'prompt' ? '' : '@';
-    chip.innerHTML = prefix + escapeHtml(ref.label) + '<span class="chip-x" title="移除">×</span>';
+    chip.innerHTML = prefix + escapeHtml(ref.label) + '<span class="chip-x" title="' + AISA.i18n.t('移除') + '">×</span>';
 
     chip.querySelector('.chip-x').addEventListener('click', (e) => {
       e.preventDefault();
@@ -130,11 +130,11 @@
 
   function buildCandidates() {
     return [
-      { kind: 'quote', label: '已选引用', icon: '📌', group: '快速' },
-      { kind: 'selection', label: '当前选中', icon: '✂️', group: '快速' },
-      { kind: 'page', label: '当前页面正文', icon: '📄', group: '快速' },
-      { kind: 'tabs', label: '其他标签页…', icon: '🗂', group: '更多', isDynamic: true },
-      { kind: 'history', label: '剪贴板历史…', icon: '📋', group: '更多', isDynamic: true }
+      { kind: 'quote', label: AISA.i18n.t('已选引用'), icon: '📌', group: AISA.i18n.t('快速') },
+      { kind: 'selection', label: AISA.i18n.t('当前选中'), icon: '✂️', group: AISA.i18n.t('快速') },
+      { kind: 'page', label: AISA.i18n.t('当前页面正文'), icon: '📄', group: AISA.i18n.t('快速') },
+      { kind: 'tabs', label: AISA.i18n.t('其他标签页…'), icon: '🗂', group: AISA.i18n.t('更多'), isDynamic: true },
+      { kind: 'history', label: AISA.i18n.t('剪贴板历史…'), icon: '📋', group: AISA.i18n.t('更多'), isDynamic: true }
     ];
   }
 
@@ -149,9 +149,9 @@
         .filter((t) => !t.active) // 排除当前活动页
         .map((t) => ({
           kind: 'tab',
-          label: t.title || '(无标题)',
+          label: t.title || AISA.i18n.t('(无标题)'),
           icon: '🔖',
-          group: '其他标签页',
+          group: AISA.i18n.t('其他标签页'),
           tabId: t.id,
           url: t.url
         }));
@@ -162,9 +162,9 @@
     if (dynamicHistory && dynamicHistory.length) {
       historyItems = dynamicHistory.map((h) => ({
         kind: 'history',
-        label: truncate(h.text.replace(/\s+/g, ' ').trim(), 30) || '(空)',
+        label: truncate(h.text.replace(/\s+/g, ' ').trim(), 30) || AISA.i18n.t('(空)'),
         icon: '🕐',
-        group: '剪贴板历史',
+        group: AISA.i18n.t('剪贴板历史'),
         text: h.text,
         source: h.source || '',
         time: h.time || 0,
@@ -198,12 +198,12 @@
       row.className = 'at-item' + (idx === 0 ? ' active' : '');
       let sub = '';
       if (it.kind === 'tab') sub = shortUrl(it.url) || '';
-      else if (it.kind === 'page') sub = '提取正文';
-      else if (it.kind === 'selection') sub = '网页选区';
+      else if (it.kind === 'page') sub = AISA.i18n.t('提取正文');
+      else if (it.kind === 'selection') sub = AISA.i18n.t('网页选区');
       else if (it.kind === 'quote') {
         // 显示顶部引用的前几个字，便于辨认；为空时提示
         const qt = fetchQuoteText();
-        sub = qt ? '顶部引用：' + truncate(qt.replace(/\s+/g, ' '), 24) : '（顶部暂无引用）';
+        sub = qt ? AISA.i18n.t('顶部引用：') + truncate(qt.replace(/\s+/g, ' '), 24) : AISA.i18n.t('（顶部暂无引用）');
       }
       else if (it.kind === 'history') sub = it.source ? it.source + ' · ' + fmtTime(it.time) : fmtTime(it.time);
       row.innerHTML =
@@ -240,7 +240,7 @@
     atMenu.innerHTML = '';
     const g = document.createElement('div');
     g.className = 'at-group';
-    g.textContent = '自定义提示词模板 (输入 / 快速匹配)';
+    g.textContent = AISA.i18n.t('自定义提示词模板 (输入 / 快速匹配)');
     atMenu.appendChild(g);
 
     if (!filtered.length) {
@@ -249,7 +249,7 @@
       row.innerHTML =
         '<span class="at-ico">⚙️</span>' +
         '<span class="at-main">' +
-          '<span class="at-title">去设置页添加模板...</span>' +
+          '<span class="at-title">' + AISA.i18n.t('去设置页添加模板...') + '</span>' +
         '</span>';
       row.addEventListener('mousedown', (e) => e.preventDefault());
       row.addEventListener('click', () => {
@@ -341,7 +341,7 @@
       // 展开为每个 tab 的列表，无需插入；这里直接重新渲染带 tabs 的菜单
       const tabs = await fetchTabs();
       if (!tabs.length) {
-        showToast('没有其他标签页');
+        showToast(AISA.i18n.t('没有其他标签页'));
         return;
       }
       // 恢复 @ 并重新打开带 tab 列表的菜单
@@ -354,7 +354,7 @@
       // "剪贴板历史…" 入口：展开为每条历史
       const hist = await fetchHistory();
       if (!hist.length) {
-        showToast('暂无剪贴板历史');
+        showToast(AISA.i18n.t('暂无剪贴板历史'));
         return;
       }
       reinsertAt();
@@ -366,43 +366,43 @@
     if (it.kind === 'quote') {
       // 从顶部可编辑的 quote-bar 取实时内容
       const text = fetchQuoteText();
-      if (!text) { showToast('顶部暂无引用，可先在上方输入框编辑一段'); return; }
-      ref = { kind: 'quote', label: '已选引用', text: text, source: fetchQuoteSource() };
+      if (!text) { showToast(AISA.i18n.t('顶部暂无引用，可先在上方输入框编辑一段')); return; }
+      ref = { kind: 'quote', label: AISA.i18n.t('已选引用'), text: text, source: fetchQuoteSource() };
     } else if (it.kind === 'selection') {
       const text = await fetchSelection();
-      if (!text) { showToast('当前网页没有选中文字'); return; }
-      ref = { kind: 'selection', label: '当前选中', text: text, source: await currentTitle() };
+      if (!text) { showToast(AISA.i18n.t('当前网页没有选中文字')); return; }
+      ref = { kind: 'selection', label: AISA.i18n.t('当前选中'), text: text, source: await currentTitle() };
     } else if (it.kind === 'page') {
       const data = await fetchPage();
-      if (!data || !data.content) { showToast('无法提取当前页面正文'); return; }
+      if (!data || !data.content) { showToast(AISA.i18n.t('无法提取当前页面正文')); return; }
       ref = {
         kind: 'page',
-        label: truncate(data.title || '当前页面', 18),
+        label: truncate(data.title || AISA.i18n.t('当前页面'), 18),
         text: data.content,
         meta: { url: data.url, title: data.title, truncated: data.truncated }
       };
     } else if (it.kind === 'tab') {
       const t = await fetchTabText(it.tabId);
-      if (!t || !t.ok) { showToast('无法读取该标签页'); return; }
+      if (!t || !t.ok) { showToast(AISA.i18n.t('无法读取该标签页')); return; }
       ref = {
         kind: 'tab',
-        label: truncate(t.title || '标签页', 18),
+        label: truncate(t.title || AISA.i18n.t('标签页'), 18),
         text: t.summary || '',
         meta: { url: t.url, title: t.title }
       };
     } else if (it.kind === 'history') {
       // 具体某条历史
-      if (!it.text) { showToast('该历史为空'); return; }
+      if (!it.text) { showToast(AISA.i18n.t('该历史为空')); return; }
       ref = {
         kind: 'history',
-        label: '剪贴板历史',
+        label: AISA.i18n.t('剪贴板历史'),
         text: it.text,
         source: it.source || ''
       };
     }
     if (ref) {
       insertChip(ref);
-      showToast('已引用 ' + ref.label);
+      showToast(AISA.i18n.t('已引用 ') + ref.label);
     }
   }
 
@@ -543,7 +543,7 @@
   function updateStats() {
     const text = serializeEditor();
     const len = text.length;
-    statsEl.textContent = len >= 1000 ? (len / 1000).toFixed(1) + 'k 字' : len + ' 字';
+    statsEl.textContent = len >= 1000 ? (len / 1000).toFixed(1) + AISA.i18n.t('k 字') : len + AISA.i18n.t(' 字');
   }
 
   // ---------- 快捷添加模板面板 ----------
@@ -567,48 +567,48 @@
     const trigger = qaTrigger.value.trim();
     const content = qaContent.value.trim();
     if (!trigger || !content) {
-      showToast('标志和内容不能为空', 2000);
+      showToast(AISA.i18n.t('标志和内容不能为空'), 2000);
       return;
     }
     if (prompts.find((p) => p.trigger === trigger)) {
-      showToast('标志已存在', 2000);
+      showToast(AISA.i18n.t('标志已存在'), 2000);
       return;
     }
     prompts.push({ trigger, content });
     await storage.savePrompts(prompts);
     qaModal.classList.add('hidden');
-    showToast('模板保存成功！', 2000);
+    showToast(AISA.i18n.t('模板保存成功！'), 2000);
   });
 
   // +引用：取顶部 quote-bar（可编辑）的当前内容
   document.getElementById('cmp-add-quote').addEventListener('click', async () => {
     focusEditorAtEnd();
     const text = fetchQuoteText();
-    if (!text) { showToast('顶部没有引用，先在网页选中文字点"发到侧边栏"，或直接在上方输入'); return; }
-    insertChip({ kind: 'quote', label: '已选引用', text: text, source: fetchQuoteSource() });
-    showToast('已引用顶部内容');
+    if (!text) { showToast(AISA.i18n.t('顶部没有引用，先在网页选中文字点"发到侧边栏"，或直接在上方输入')); return; }
+    insertChip({ kind: 'quote', label: AISA.i18n.t('已选引用'), text: text, source: fetchQuoteSource() });
+    showToast(AISA.i18n.t('已引用顶部内容'));
   });
 
   document.getElementById('cmp-add-selection').addEventListener('click', async () => {
     focusEditorAtEnd();
     const text = await fetchSelection();
-    if (!text) { showToast('当前网页没有选中文字'); return; }
+    if (!text) { showToast(AISA.i18n.t('当前网页没有选中文字')); return; }
     const title = await currentTitle();
-    insertChip({ kind: 'selection', label: '当前选中', text: text, source: title });
-    showToast('已引用当前选中');
+    insertChip({ kind: 'selection', label: AISA.i18n.t('当前选中'), text: text, source: title });
+    showToast(AISA.i18n.t('已引用当前选中'));
   });
 
   document.getElementById('cmp-add-page').addEventListener('click', async () => {
     focusEditorAtEnd();
     const data = await fetchPage();
-    if (!data || !data.content) { showToast('无法提取当前页面正文'); return; }
+    if (!data || !data.content) { showToast(AISA.i18n.t('无法提取当前页面正文')); return; }
     insertChip({
       kind: 'page',
-      label: truncate(data.title || '当前页面', 18),
+      label: truncate(data.title || AISA.i18n.t('当前页面'), 18),
       text: data.content,
       meta: { url: data.url, title: data.title, truncated: data.truncated }
     });
-    showToast('已引用当前页面');
+    showToast(AISA.i18n.t('已引用当前页面'));
   });
 
   document.getElementById('cmp-clear').addEventListener('click', () => {
@@ -619,14 +619,14 @@
 
   document.getElementById('cmp-copy').addEventListener('click', async () => {
     const text = serializeEditor();
-    if (!text) { showToast('内容为空'); return; }
+    if (!text) { showToast(AISA.i18n.t('内容为空')); return; }
     const ok = await clipboard.copyText(text);
     if (ok) {
-      showToast('已复制！点 AI 输入框按 Ctrl+V 粘贴', 3500);
+      showToast(AISA.i18n.t('已复制！点 AI 输入框按 Ctrl+V 粘贴'), 3500);
       // 同时记入历史
-      try { await storage.addHistoryItem(text, '提示词组装'); } catch (e) {}
+      try { await storage.addHistoryItem(text, AISA.i18n.t('提示词组装')); } catch (e) {}
     } else {
-      showToast('复制失败');
+      showToast(AISA.i18n.t('复制失败'));
     }
   });
 
@@ -704,7 +704,7 @@
       const now = new Date();
       const sameDay = d.toDateString() === now.toDateString();
       const pad = (n) => (n < 10 ? '0' + n : n);
-      if (sameDay) return '今天 ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+      if (sameDay) return AISA.i18n.t('今天 ') + pad(d.getHours()) + ':' + pad(d.getMinutes());
       return (d.getMonth() + 1) + '/' + d.getDate() + ' ' + pad(d.getHours()) + ':' + pad(d.getMinutes());
     } catch (e) { return ''; }
   }
@@ -712,6 +712,8 @@
   // 暴露给外部（sidepanel.js / background 转发的消息）调用的接口
   window.AISA = window.AISA || {};
   window.AISA.initComposer = async function () {
+    await AISA.i18n.init();
+    AISA.i18n.applyToDOM();
     updateStats();
     prompts = (await storage.getPrompts()) || [];
   };
@@ -729,11 +731,11 @@
     focusEditorAtEnd();
     insertChip({
       kind: ref.kind || 'external',
-      label: ref.label || '引用',
+      label: ref.label || AISA.i18n.t('引用'),
       text: ref.text,
       source: ref.source || ''
     });
-    showToast('已加到提示词组装');
+    showToast(AISA.i18n.t('已加到提示词组装'));
     return true;
   };
   // 当前组装区芯片数量（供折叠条摘要显示）

@@ -7,16 +7,23 @@
  *  - 通知
  */
 
+// 导入必要的库
+try {
+  importScripts('../lib/storage.js', '../lib/i18n.js');
+} catch (e) {
+  console.error('Failed to import scripts in service worker:', e);
+}
+
 // ===== 默认站点（与 sidepanel.js 一致；供 service worker 单独使用）=====
 const AISA_DEFAULT_SITES = [
   { id: 'chatgpt', name: 'ChatGPT', url: 'https://chatgpt.com/', icon: 'assets/site-icons/chatgpt.png' },
   { id: 'claude', name: 'Claude', url: 'https://claude.ai/new', icon: 'assets/site-icons/claude.png' },
   { id: 'gemini', name: 'Gemini', url: 'https://gemini.google.com/app', icon: 'assets/site-icons/gemini.png' },
   { id: 'deepseek', name: 'DeepSeek', url: 'https://chat.deepseek.com/', icon: 'assets/site-icons/deepseek.png' },
-  { id: 'tongyi', name: '通义千问', url: 'https://tongyi.aliyun.com/qianwen/', icon: 'assets/site-icons/tongyi.png' },
+  { id: 'tongyi', name: self.AISA && self.AISA.i18n ? self.AISA.i18n.t('通义千问') : '通义千问', url: 'https://tongyi.aliyun.com/qianwen/', icon: 'assets/site-icons/tongyi.png' },
   { id: 'kimi', name: 'Kimi', url: 'https://kimi.moonshot.cn/', icon: 'assets/site-icons/kimi.png' },
-  { id: 'glm', name: '智谱清言', url: 'https://chatglm.cn/main/alltoolsdetail', icon: 'assets/site-icons/glm.png' },
-  { id: 'yiyan', name: '文心一言', url: 'https://yiyan.baidu.com/', icon: 'assets/site-icons/yiyan.png' }
+  { id: 'glm', name: self.AISA && self.AISA.i18n ? self.AISA.i18n.t('智谱清言') : '智谱清言', url: 'https://chatglm.cn/main/alltoolsdetail', icon: 'assets/site-icons/glm.png' },
+  { id: 'yiyan', name: self.AISA && self.AISA.i18n ? self.AISA.i18n.t('文心一言') : '文心一言', url: 'https://yiyan.baidu.com/', icon: 'assets/site-icons/yiyan.png' }
 ];
 
 const SETTINGS_KEY = 'aisa_settings';
@@ -170,24 +177,25 @@ chrome.action.onClicked.addListener((tab) => {
 // ===== 右键菜单 =====
 function createContextMenu() {
   chrome.contextMenus.removeAll(() => {
+    const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
     chrome.contextMenus.create({
       id: 'aisa-open-panel',
-      title: 'AI 侧边栏助手：打开侧边栏',
+      title: t('AI 侧边栏助手：打开侧边栏'),
       contexts: ['action', 'page']
     });
     chrome.contextMenus.create({
       id: 'aisa-send-quote',
-      title: '将选中内容发到 AI 侧边栏',
+      title: t('将选中内容发到 AI 侧边栏'),
       contexts: ['selection']
     });
     chrome.contextMenus.create({
       id: 'aisa-copy-tab',
-      title: '复制当前标签页（标题 + URL）',
+      title: t('复制当前标签页（标题 + URL）'),
       contexts: ['action', 'page']
     });
     chrome.contextMenus.create({
       id: 'aisa-toggle-super',
-      title: '切换超级复制（破解禁止复制）',
+      title: t('切换超级复制（破解禁止复制）'),
       contexts: ['action', 'page']
     });
   });
@@ -218,7 +226,8 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     case 'aisa-toggle-super': {
       const s = await getSettings();
       const next = await saveSettings({ superCopy: !s.superCopy });
-      notify('AI 侧边栏助手', '超级复制已' + (next.superCopy ? '开启' : '关闭'));
+      const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+      notify(t('AI 侧边栏助手'), t('超级复制已') + (next.superCopy ? t('开启') : t('关闭')));
       break;
     }
   }
@@ -262,7 +271,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // 来自网页浮动按钮"加到组装"：
     //  - sidepanel 若已打开，会通过 sendMessage 广播直接收到并插入
     //  - 这里做持久化兜底：sidepanel 未打开时暂存队列，打开后补插
-    const item = { label: '网页选中', text: msg.text || '', source: msg.source || '', time: Date.now() };
+    const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+    const item = { label: t('网页选中'), text: msg.text || '', source: msg.source || '', time: Date.now() };
     chrome.storage.local.get('aisa_pending_compose', (data) => {
       const queue = Array.isArray(data.aisa_pending_compose) ? data.aisa_pending_compose : [];
       queue.push(item);
@@ -291,7 +301,8 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     saveSettings(msg.patch || {}).then((s) => sendResponse({ settings: s }));
     return true;
   } else if (msg && msg.type === 'AISA_NOTIFY') {
-    notify(msg.title || 'AI 侧边栏助手', msg.message || '');
+    const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+    notify(msg.title || t('AI 侧边栏助手'), msg.message || '');
     sendResponse({ ok: true });
   } else if (msg && msg.type === 'AISA_GET_DEFAULT_SITES') {
     sendResponse({ sites: AISA_DEFAULT_SITES });
@@ -341,7 +352,8 @@ chrome.commands.onCommand.addListener(async (command) => {
     case 'toggle-autocopy': {
       const s = await getSettings();
       const next = await saveSettings({ autoCopy: !s.autoCopy });
-      notify('AI 侧边栏助手', '自动复制已' + (next.autoCopy ? '开启' : '关闭'));
+      const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+      notify(t('AI 侧边栏助手'), t('自动复制已') + (next.autoCopy ? t('开启') : t('关闭')));
       break;
     }
     case 'open-history':
@@ -355,14 +367,16 @@ async function copyCurrentTab(tab) {
   const s = await getSettings();
   const text = formatOne(tab, s.copyFormat);
   await copyInTab(text);
-  notify('已复制标签页', text);
+  const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+  notify(t('已复制标签页'), text);
 }
 
 async function copyAllTabs(tabs) {
   const s = await getSettings();
   const text = formatTabs(tabs, s.copyFormat);
   await copyInTab(text);
-  notify('已复制全部标签页', '共 ' + tabs.length + ' 个标签页');
+  const t = (text) => self.AISA && self.AISA.i18n ? self.AISA.i18n.t(text) : text;
+  notify(t('已复制全部标签页'), t('共') + ' ' + tabs.length + ' ' + t('个标签页'));
 }
 
 function formatOne(tab, fmt) {

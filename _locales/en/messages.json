@@ -1,0 +1,9 @@
+{
+  "extName": { "message": "AI Sidebar Assistant" },
+  "extDesc": { "message": "Open ChatGPT/Claude/Gemini directly in your sidebar. Auto-copy selected text on any webpage and easily send it to AI." },
+  "actionTitle": { "message": "AI Sidebar Assistant (Click to open)" },
+  "cmdExecuteAction": { "message": "Open/Focus AI Sidebar" },
+  "cmdCopyCurrentTab": { "message": "Copy current tab info" },
+  "cmdToggleAutocopy": { "message": "Toggle auto-copy text" },
+  "cmdOpenHistory": { "message": "Open clipboard history" }
+}
