@@ -59,10 +59,11 @@
           siteOverrides: overrides
         };
 
-        await storage.saveSettings(patch);
+        await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ type: 'AISA_SAVE_SETTINGS', patch: patch }, resolve);
+        });
         await storage.saveSites(sites);
         await storage.savePrompts(prompts);
-        chrome.runtime.sendMessage({ type: 'AISA_SETTINGS_CHANGED' }).catch(() => {});
         status(AISA.i18n.t('自动保存成功'), false, 2000);
       } catch (e) {
         status(AISA.i18n.t('自动保存失败: ') + e.message, true);
@@ -108,7 +109,9 @@
     $('opt-locale').addEventListener('change', async () => {
       try {
         const patch = { locale: $('opt-locale').value };
-        await storage.saveSettings(patch);
+        await new Promise((resolve) => {
+          chrome.runtime.sendMessage({ type: 'AISA_SAVE_SETTINGS', patch: patch }, resolve);
+        });
         location.reload();
       } catch (e) {}
     });

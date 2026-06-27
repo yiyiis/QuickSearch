@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "default_locale": "zh_CN",
   "name": "__MSG_extName__",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "__MSG_extDesc__",
   "minimum_chrome_version": "114",
   "icons": {
@@ -40,6 +40,7 @@
       "matches": ["<all_urls>"],
       "js": [
         "lib/lib-init.js",
+        "lib/i18n.js",
         "lib/storage.js",
         "lib/clipboard.js",
         "lib/format.js",

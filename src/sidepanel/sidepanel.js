@@ -372,7 +372,11 @@
       autoExpandTop(); // 收到引用自动展开顶部面板
       sendResponse({ ok: true });
     } else if (msg && msg.type === 'AISA_SETTINGS_CHANGED') {
-      // 设置变更，无需特殊处理
+      // 设置变更：如果 locale 变了，更新 i18n 并重新翻译整个侧边栏
+      if (msg.settings && msg.settings.locale && AISA.i18n) {
+        AISA.i18n.locale = msg.settings.locale;
+        AISA.i18n.applyToDOM();
+      }
       sendResponse({ ok: true });
     } else if (msg && msg.type === 'AISA_ADD_TO_COMPOSER') {
       // 来自网页浮动按钮"加到组装"：在 composer 插入一个芯片

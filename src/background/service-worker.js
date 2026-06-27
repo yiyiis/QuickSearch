@@ -9,7 +9,7 @@
 
 // 导入必要的库
 try {
-  importScripts('../lib/storage.js', '../lib/i18n.js');
+  importScripts('../../lib/storage.js', '../../lib/i18n.js');
 } catch (e) {
   console.error('Failed to import scripts in service worker:', e);
 }

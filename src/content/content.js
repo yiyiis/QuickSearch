@@ -26,6 +26,9 @@
     try {
       const s = await storage.getEffectiveSettings(hostname());
       currentSettings = s;
+      if (s && s.locale && window.AISA && window.AISA.i18n) {
+        window.AISA.i18n.locale = s.locale;
+      }
       applySuperCopy();
       applyLauncher();
     } catch (e) {
@@ -112,6 +115,9 @@
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     if (msg && msg.type === 'AISA_SETTINGS_CHANGED') {
       currentSettings = Object.assign({}, currentSettings || {}, msg.settings || {});
+      if (msg.settings && msg.settings.locale && window.AISA && window.AISA.i18n) {
+        window.AISA.i18n.locale = msg.settings.locale;
+      }
       refreshSettings();
       sendResponse({ ok: true });
     } else if (msg && msg.type === 'AISA_GET_SETTINGS_FROM_CONTENT') {

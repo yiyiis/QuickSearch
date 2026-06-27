@@ -364,22 +364,72 @@
   function renderLauncherMenu() {
     const menu = ensureLauncherMenu();
     menu.innerHTML = '';
-    const head = el('div', 'aisa-lm-head',
-      '<span class="aisa-lm-title">' + t('AI 侧边栏助手') + '</span>' +
-      '<span class="aisa-lm-lang"><select id="aisa-lm-locale" style="margin:0 10px;padding:2px;font-size:12px;border:none;background:transparent;cursor:pointer;outline:none;"><option value="zh">ZH</option><option value="en">EN</option></select></span>' +
-      '<span class="aisa-lm-close" title="' + t('收起') + '">×</span>'
-    );
-    head.querySelector('.aisa-lm-close').addEventListener('click', (e) => { e.stopPropagation(); hideLauncherMenu(); });
-    const langSel = head.querySelector('#aisa-lm-locale');
-    if (langSel && window.AISA && window.AISA.i18n) {
-      langSel.value = window.AISA.i18n.locale;
-      langSel.addEventListener('change', async (e) => {
-        e.stopPropagation();
-        safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { locale: langSel.value } });
-        window.AISA.i18n.locale = langSel.value;
-        renderLauncherMenu();
-      });
-    }
+    const isEn = window.AISA && window.AISA.i18n && window.AISA.i18n.locale === 'en';
+    const head = el('div', 'aisa-lm-head', '');
+
+    // 标题
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'aisa-lm-title';
+    titleSpan.textContent = t('AI 侧边栏助手');
+    head.appendChild(titleSpan);
+
+    // 语言切换 toggle — 纯 DOM 构建带滑块
+    const langToggle = document.createElement('div');
+    langToggle.title = 'Language / 中英文切换';
+    langToggle.style.cssText = 'position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.2);border-radius:12px;padding:2px;cursor:pointer;margin:0 10px;width:54px;height:20px;box-sizing:border-box;';
+
+    const slider = document.createElement('div');
+    slider.style.cssText = 'position:absolute;top:2px;left:2px;width:24px;height:16px;background:#fff;border-radius:10px;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);pointer-events:none;';
+    if (isEn) slider.style.transform = 'translateX(26px)';
+    langToggle.appendChild(slider);
+
+    const zhText = document.createElement('span');
+    zhText.textContent = '中';
+    zhText.style.cssText = 'flex:1;text-align:center;font-size:10px;font-weight:600;transition:color 0.25s;user-select:none;pointer-events:none;z-index:1;';
+    zhText.style.color = !isEn ? '#2563eb' : 'rgba(255,255,255,0.7)';
+    langToggle.appendChild(zhText);
+
+    const enText = document.createElement('span');
+    enText.textContent = 'EN';
+    enText.style.cssText = 'flex:1;text-align:center;font-size:10px;font-weight:600;transition:color 0.25s;user-select:none;pointer-events:none;z-index:1;';
+    enText.style.color = isEn ? '#2563eb' : 'rgba(255,255,255,0.7)';
+    langToggle.appendChild(enText);
+
+    langToggle.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+    langToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      if (!window.AISA || !window.AISA.i18n) return;
+      const newLang = window.AISA.i18n.locale === 'zh' ? 'en' : 'zh';
+      window.AISA.i18n.locale = newLang;
+
+      // 立即触发滑动动画
+      if (newLang === 'en') {
+        slider.style.transform = 'translateX(26px)';
+        zhText.style.color = 'rgba(255,255,255,0.7)';
+        enText.style.color = '#2563eb';
+      } else {
+        slider.style.transform = 'translateX(0)';
+        zhText.style.color = '#2563eb';
+        enText.style.color = 'rgba(255,255,255,0.7)';
+      }
+
+      safeSendMessage({ type: 'AISA_SAVE_SETTINGS', patch: { locale: newLang } });
+
+      // 等动画播完再重绘面板更新文字
+      clearTimeout(langToggle._rebuildTimer);
+      langToggle._rebuildTimer = setTimeout(() => { renderLauncherMenu(); }, 300);
+    });
+    head.appendChild(langToggle);
+
+    // 关闭按钮
+    const closeSpan = document.createElement('span');
+    closeSpan.className = 'aisa-lm-close';
+    closeSpan.title = t('收起');
+    closeSpan.textContent = '×';
+    closeSpan.addEventListener('mousedown', (e) => { e.stopPropagation(); });
+    closeSpan.addEventListener('click', (e) => { e.stopPropagation(); hideLauncherMenu(); });
+    head.appendChild(closeSpan);
     menu.appendChild(head);
     const tabs = el('div', 'aisa-lm-tabs');
     TAB_DEFS.forEach((td) => {

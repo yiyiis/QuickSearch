@@ -221,6 +221,47 @@ html.aisa-supercopy img {
   color: #fff;
 }
 #aisa-launcher-menu .aisa-lm-title { font-size: 13px; font-weight: 600; }
+#aisa-launcher-menu .aisa-lm-lang-toggle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 2px;
+  cursor: pointer;
+  margin: 0 10px;
+  width: 54px;
+  height: 20px;
+  box-sizing: border-box;
+}
+#aisa-launcher-menu .aisa-lm-lang-slider {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 16px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+#aisa-launcher-menu .aisa-lm-lang-slider.is-en {
+  transform: translateX(26px);
+}
+#aisa-launcher-menu .aisa-lm-lang-toggle .lang-text {
+  flex: 1;
+  text-align: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  transition: color 0.25s;
+  user-select: none;
+  pointer-events: none;
+}
+#aisa-launcher-menu .aisa-lm-lang-toggle .lang-text.active {
+  color: #2563eb;
+}
 #aisa-launcher-menu .aisa-lm-close {
   cursor: pointer;
   font-size: 18px;
