@@ -52,6 +52,12 @@
 
   // ---------- 选区监听 ----------
   let selTimer = null;
+  // 鼠标是否正处于「按下拖选」状态。
+  // 为 true 时跳过复制/弹按钮——否则拖选中停顿一下，浮动按钮就会在松手前弹出，
+  // 挡在鼠标拖动路径上导致光标失焦（Windows + Edge 上尤其明显）。
+  // 复制与弹按钮统一推迟到 mouseup（松手）后再执行。
+  let isSelecting = false;
+
   function onSelectionChange() {
     clearTimeout(selTimer);
     selTimer = setTimeout(handleSelection, 200);
@@ -59,6 +65,8 @@
 
   function handleSelection() {
     if (!currentSettings) return;
+    // 正在按下拖选：只更新标志，不执行任何副作用，等 mouseup 收尾
+    if (isSelecting) return;
     // 扩展重载后旧页面 context 失效：选区仍可复制到剪贴板（本地能力），但不触发消息/历史
     const alive = api.runtimeAlive();
     const sel = window.getSelection();
@@ -97,19 +105,22 @@
   }
 
   document.addEventListener('selectionchange', onSelectionChange, false);
-  document.addEventListener('mouseup', () => setTimeout(handleSelection, 10), false);
+  // mousedown：进入拖选状态（左键），mouseup 收尾后再走完整复制/弹按钮流程
+  document.addEventListener('mousedown', (e) => {
+    if (e.button === 0) isSelecting = true;
+  }, false);
+  document.addEventListener('mouseup', (e) => {
+    if (e.button !== 0) return;
+    isSelecting = false;
+    setTimeout(handleSelection, 10);
+  }, false);
   document.addEventListener('keyup', (e) => {
     // Shift+方向键选择后也响应
     if (e.shiftKey) setTimeout(handleSelection, 10);
   }, false);
 
-  // 滚动/点击其他地方时隐藏浮动按钮
+  // 滚动时隐藏浮动按钮
   window.addEventListener('scroll', () => api.hideFloatBtn(), true);
-  document.addEventListener('mousedown', (e) => {
-    if (e.target && e.target.id !== 'aisa-float-btn') {
-      // 不立即隐藏，留给 mouseup 重新评估
-    }
-  }, false);
 
   // ---------- 接收设置变更 / 数据请求 ----------
   chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
