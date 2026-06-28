@@ -1,6 +1,10 @@
 # 浏览器加载扩展时自动生成的元数据（DNR 规则预编译缓存等）
 _metadata/
 
+# 根目录一次性脚本/中间产物（i18n 扫描、调试 mock 等），勿提交
+/*.py
+/test-sw.js
+
 # 本项目是纯 Vanilla JS，无 npm 依赖；lock 文件为无效残留
 package-lock.json
 package.json
